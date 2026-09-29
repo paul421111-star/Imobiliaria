@@ -1,0 +1,56 @@
+<%- include('partials/top') %>
+
+<div class="toolbar">
+  <form method="get" action="/admin/imoveis" class="toolbar-form">
+    <input type="text" name="busca" value="<%= query.busca || '' %>" placeholder="Buscar por título, código, bairro..." class="toolbar-search">
+    <select name="status" onchange="this.form.submit()">
+      <option value="">Todos os status</option>
+      <% for (const [k, s] of Object.entries(PROPERTY_STATUS)) { %><option value="<%= k %>" <%= query.status === k ? 'selected' : '' %>><%= s.label %></option><% } %>
+    </select>
+    <button class="btn btn-outline" type="submit"><%- include('../partials/icons', { icon: 'search' }) %></button>
+  </form>
+  <a href="/admin/imoveis/novo" class="btn btn-accent"><%- include('../partials/icons', { icon: 'plus' }) %> Novo imóvel</a>
+</div>
+
+<% if (props.length === 0) { %>
+  <div class="empty-state"><h3>Nenhum imóvel encontrado</h3><p>Cadastre o primeiro imóvel para começar a receber solicitações.</p><a href="/admin/imoveis/novo" class="btn btn-accent">Cadastrar imóvel</a></div>
+<% } else { %>
+<div class="card table-wrap">
+  <table class="table">
+    <thead><tr><th>Imóvel</th><th>Tipo</th><th>Aluguel</th><th>Status</th><th>Corretor</th><th>Fotos</th><th>Interesse</th><th></th></tr></thead>
+    <tbody>
+      <% for (const p of props) { const st = utils.propStatus(p.status); %>
+      <tr>
+        <td>
+          <div class="prop-cell">
+            <% if (p.cover) { %><img src="/uploads/<%= p.cover %>" alt=""><% } else { %><span class="prop-cell-noimg"><%- include('../partials/icons', { icon: 'image' }) %></span><% } %>
+            <div>
+              <a href="/admin/imoveis/<%= p.id %>/editar" class="strong"><%= utils.truncate(p.title, 48) %></a>
+              <small class="text-muted"><%= p.code %> · <%= [p.neighborhood, p.city].filter(Boolean).join(', ') %><% if (p.featured) { %> · <span class="text-accent">★ Destaque</span><% } %></small>
+            </div>
+          </div>
+        </td>
+        <td><%= utils.typeLabel(p.type) %></td>
+        <td><strong><%= utils.money(p.price) %></strong></td>
+        <td>
+          <form method="post" action="/admin/imoveis/<%= p.id %>/status" class="inline-form">
+            <select name="status" class="select-status status-sel-<%= p.status %>" onchange="this.form.submit()">
+              <% for (const [k, s] of Object.entries(PROPERTY_STATUS)) { %><option value="<%= k %>" <%= p.status === k ? 'selected' : '' %>><%= s.label %></option><% } %>
+            </select>
+          </form>
+        </td>
+        <td><%= p.broker_name || '—' %></td>
+        <td><span class="<%= p.image_count === 0 ? 'text-danger' : '' %>"><%= p.image_count %></span></td>
+        <td><%= p.lead_count %> <small class="text-muted">· <%= p.views %> views</small></td>
+        <td class="text-right nowrap">
+          <a href="/imovel/<%= p.code %>" class="btn btn-sm btn-ghost" target="_blank" rel="noopener" title="Ver no site"><%- include('../partials/icons', { icon: 'external' }) %></a>
+          <a href="/admin/imoveis/<%= p.id %>/editar" class="btn btn-sm btn-outline"><%- include('../partials/icons', { icon: 'edit' }) %> Editar</a>
+        </td>
+      </tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+<% } %>
+
+<%- include('partials/bottom') %>

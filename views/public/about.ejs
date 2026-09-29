@@ -1,0 +1,54 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<section class="page-hero">
+  <div class="container">
+    <nav class="breadcrumb"><a href="/">Início</a> <span>/</span> <span>Sobre</span></nav>
+    <h1>Sobre a <%= settings.site_name %></h1>
+    <p><%= settings.site_tagline %></p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container about-layout">
+    <div>
+      <span class="section-eyebrow">Quem somos</span>
+      <h2>Atendimento humano, processo digital</h2>
+      <div class="prose"><%- utils.escapeHtml(settings.about).replace(/\n/g, '<br>') %></div>
+      <div class="value-grid">
+        <div><%- include('../partials/icons', { icon: 'shield' }) %><strong>Segurança</strong><span>Contratos claros e garantias flexíveis.</span></div>
+        <div><%- include('../partials/icons', { icon: 'clock' }) %><strong>Agilidade</strong><span>Resposta rápida e análise de cadastro simplificada.</span></div>
+        <div><%- include('../partials/icons', { icon: 'chat' }) %><strong>Transparência</strong><span>Acompanhe cada etapa pelo protocolo e chat.</span></div>
+      </div>
+    </div>
+    <div class="card card-pad" id="requisitos">
+      <h3 class="card-title"><%- include('../partials/icons', { icon: 'file' }) %> Requisitos para alugar</h3>
+      <ul class="check-list">
+        <% for (const line of settings.rental_requirements.split('\n').filter(Boolean)) { %><li><%- include('../partials/icons', { icon: 'check' }) %> <span><%= line %></span></li><% } %>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<% if (brokers.length) { %>
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-head center"><span class="section-eyebrow">Nosso time</span><h2>Quem vai te atender</h2></div>
+    <div class="team-grid">
+      <% for (const b of brokers) { %>
+      <div class="team-card">
+        <span class="avatar avatar-lg"><%= b.name.charAt(0) %></span>
+        <strong><%= b.name %></strong>
+        <span><%= b.creci || (b.role === 'admin' ? 'Administrador' : 'Corretor(a)') %></span>
+        <div class="team-actions">
+          <% if (b.whatsapp) { %><a class="btn btn-whatsapp btn-sm" href="<%= utils.whatsappLink(b.whatsapp, 'Olá ' + b.name + '! Vim pelo site.') %>" target="_blank" rel="noopener"><%- include('../partials/icons', { icon: 'whatsapp' }) %> WhatsApp</a><% } %>
+          <% if (b.email) { %><a class="btn btn-outline btn-sm" href="mailto:<%= b.email %>"><%- include('../partials/icons', { icon: 'mail' }) %></a><% } %>
+        </div>
+      </div>
+      <% } %>
+    </div>
+  </div>
+</section>
+<% } %>
+
+<%- include('../partials/footer') %>

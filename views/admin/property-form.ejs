@@ -1,0 +1,177 @@
+<%- include('partials/top') %>
+<% const isNew = !prop.id; %>
+
+<div class="page-actions">
+  <a href="/admin/imoveis" class="link-muted"><%- include('../partials/icons', { icon: 'arrow' }) %> Voltar para imóveis</a>
+  <% if (!isNew) { %>
+  <div class="page-actions-right">
+    <span class="badge badge-<%= utils.propStatus(prop.status).color %> badge-lg"><%= utils.propStatus(prop.status).label %></span>
+    <a href="/imovel/<%= prop.code %>" class="btn btn-outline btn-sm" target="_blank" rel="noopener"><%- include('../partials/icons', { icon: 'external' }) %> Ver no site</a>
+  </div>
+  <% } %>
+</div>
+
+<% if (errors.length) { %>
+<div class="alert alert-error"><%- include('../partials/icons', { icon: 'info' }) %><div><strong>Corrija os itens abaixo:</strong><ul class="alert-list"><% for (const e of errors) { %><li><%= e %></li><% } %></ul></div></div>
+<% } %>
+
+<div class="form-layout">
+  <form method="post" action="<%= isNew ? '/admin/imoveis' : '/admin/imoveis/' + prop.id %>" class="card card-pad form-main" id="propertyForm">
+    <h2 class="card-title"><%- include('../partials/icons', { icon: 'building' }) %> Dados do imóvel <small class="text-muted">· <%= prop.code %></small></h2>
+
+    <div class="field">
+      <label for="title">Título do anúncio *</label>
+      <input id="title" name="title" type="text" required minlength="10" maxlength="120" value="<%= prop.title %>" placeholder="Ex.: Apartamento 2 dormitórios com varanda no Brooklin">
+    </div>
+    <div class="form-grid-3">
+      <div class="field">
+        <label for="type">Tipo *</label>
+        <select id="type" name="type" required>
+          <% for (const t of PROPERTY_TYPES) { %><option value="<%= t.value %>" <%= prop.type === t.value ? 'selected' : '' %>><%= t.label %></option><% } %>
+        </select>
+      </div>
+      <div class="field">
+        <label for="status">Status *</label>
+        <select id="status" name="status">
+          <% for (const [k, s] of Object.entries(PROPERTY_STATUS)) { %><option value="<%= k %>" <%= prop.status === k ? 'selected' : '' %>><%= s.label %></option><% } %>
+        </select>
+        <small class="hint">Somente "Disponível" aparece no site. Exige ao menos 1 foto.</small>
+      </div>
+      <div class="field">
+        <label for="broker_id">Corretor responsável</label>
+        <select id="broker_id" name="broker_id">
+          <option value="">— Não definido —</option>
+          <% for (const b of brokers) { %><option value="<%= b.id %>" <%= String(prop.broker_id) === String(b.id) ? 'selected' : '' %>><%= b.name %><%= b.role === 'admin' ? ' (admin)' : '' %></option><% } %>
+        </select>
+      </div>
+    </div>
+
+    <h3 class="form-section">Valores</h3>
+    <div class="form-grid-3">
+      <div class="field"><label for="price">Aluguel mensal (R$) *</label><input id="price" name="price" type="number" step="0.01" min="1" required value="<%= prop.price %>"></div>
+      <div class="field"><label for="condo_fee">Condomínio (R$)</label><input id="condo_fee" name="condo_fee" type="number" step="0.01" min="0" value="<%= prop.condo_fee %>"></div>
+      <div class="field"><label for="iptu">IPTU mensal (R$)</label><input id="iptu" name="iptu" type="number" step="0.01" min="0" value="<%= prop.iptu %>"></div>
+      <div class="field"><label for="min_contract_months">Contrato mínimo (meses)</label><input id="min_contract_months" name="min_contract_months" type="number" min="1" max="60" value="<%= prop.min_contract_months %>"></div>
+      <div class="field"><label for="deposit_months">Caução (meses de aluguel)</label><input id="deposit_months" name="deposit_months" type="number" min="0" max="3" value="<%= prop.deposit_months %>"><small class="hint">Máximo legal: 3 meses.</small></div>
+    </div>
+
+    <h3 class="form-section">Características</h3>
+    <div class="form-grid-4">
+      <div class="field"><label for="area">Área (m²)</label><input id="area" name="area" type="number" step="0.1" min="0" value="<%= prop.area ?? '' %>"></div>
+      <div class="field"><label for="bedrooms">Dormitórios</label><input id="bedrooms" name="bedrooms" type="number" min="0" max="20" value="<%= prop.bedrooms %>"></div>
+      <div class="field"><label for="suites">Suítes</label><input id="suites" name="suites" type="number" min="0" max="20" value="<%= prop.suites %>"></div>
+      <div class="field"><label for="bathrooms">Banheiros</label><input id="bathrooms" name="bathrooms" type="number" min="0" max="20" value="<%= prop.bathrooms %>"></div>
+      <div class="field"><label for="parking">Vagas</label><input id="parking" name="parking" type="number" min="0" max="20" value="<%= prop.parking %>"></div>
+    </div>
+    <div class="check-row">
+      <label class="check"><input type="checkbox" name="furnished" value="1" <%= prop.furnished ? 'checked' : '' %>> <span>Mobiliado</span></label>
+      <label class="check"><input type="checkbox" name="pets_allowed" value="1" <%= prop.pets_allowed ? 'checked' : '' %>> <span>Aceita pets</span></label>
+      <label class="check"><input type="checkbox" name="featured" value="1" <%= prop.featured ? 'checked' : '' %>> <span>Destacar na página inicial</span></label>
+    </div>
+
+    <h3 class="form-section">Endereço</h3>
+    <div class="form-grid-3">
+      <div class="field span-2"><label for="address">Rua e número</label><input id="address" name="address" type="text" value="<%= prop.address %>"></div>
+      <div class="field"><label for="zip">CEP</label><input id="zip" name="zip" type="text" value="<%= prop.zip %>" placeholder="00000-000"></div>
+      <div class="field"><label for="neighborhood">Bairro</label><input id="neighborhood" name="neighborhood" type="text" value="<%= prop.neighborhood %>"></div>
+      <div class="field"><label for="city">Cidade *</label><input id="city" name="city" type="text" required value="<%= prop.city %>"></div>
+      <div class="field"><label for="state">UF</label><input id="state" name="state" type="text" maxlength="2" value="<%= prop.state %>"></div>
+    </div>
+
+    <h3 class="form-section">Descrição *</h3>
+    <div class="field">
+      <textarea id="description" name="description" rows="7" required minlength="30" placeholder="Descreva o imóvel: distribuição dos cômodos, acabamento, iluminação, proximidades, diferenciais..."><%= prop.description %></textarea>
+    </div>
+    <div class="field">
+      <label for="video_url">Link de vídeo (YouTube etc.)</label>
+      <input id="video_url" name="video_url" type="url" value="<%= prop.video_url || '' %>" placeholder="https://">
+    </div>
+
+    <h3 class="form-section">Comodidades</h3>
+    <div class="feature-check-grid">
+      <% for (const f of FEATURE_OPTIONS) { %>
+        <label class="check"><input type="checkbox" name="features" value="<%= f %>" <%= prop.features_list.includes(f) ? 'checked' : '' %>> <span><%= f %></span></label>
+      <% } %>
+    </div>
+    <div class="field">
+      <label for="features_extra">Outras comodidades (separe por vírgula)</label>
+      <input id="features_extra" name="features_extra" type="text" value="<%= prop.features_list.filter(f => !FEATURE_OPTIONS.includes(f)).join(', ') %>" placeholder="Ex.: Sauna, Quadra de tênis">
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-accent btn-lg" type="submit"><%- include('../partials/icons', { icon: 'check' }) %> <%= isNew ? 'Cadastrar imóvel' : 'Salvar alterações' %></button>
+      <a href="/admin/imoveis" class="btn btn-ghost">Cancelar</a>
+    </div>
+  </form>
+
+  <div class="form-side">
+    <% if (isNew) { %>
+      <div class="card card-pad">
+        <h3 class="card-title"><%- include('../partials/icons', { icon: 'image' }) %> Fotos</h3>
+        <p class="text-muted">Após cadastrar os dados, você poderá enviar as fotos do imóvel nesta mesma tela.</p>
+        <ul class="hint-list">
+          <li>Até 15 fotos por imóvel (JPG, PNG ou WEBP, máx. 8 MB cada).</li>
+          <li>A primeira foto enviada vira a capa; você pode trocar depois.</li>
+          <li>O anúncio só é publicado com ao menos 1 foto.</li>
+        </ul>
+      </div>
+    <% } else { %>
+      <div class="card card-pad" id="fotos">
+        <h3 class="card-title"><%- include('../partials/icons', { icon: 'image' }) %> Fotos <small class="text-muted">(<%= prop.images.length %>/15)</small></h3>
+        <% if (prop.images.length < 15) { %>
+        <form method="post" action="/admin/imoveis/<%= prop.id %>/imagens" enctype="multipart/form-data" class="upload-form" id="uploadForm">
+          <label class="dropzone" for="imagesInput">
+            <%- include('../partials/icons', { icon: 'image', size: 'xl' }) %>
+            <strong>Clique ou arraste as fotos aqui</strong>
+            <span>JPG, PNG ou WEBP · até 8 MB cada · máx. <%= 15 - prop.images.length %> arquivo(s)</span>
+            <input id="imagesInput" type="file" name="images" accept="image/jpeg,image/png,image/webp" multiple hidden>
+          </label>
+          <div class="upload-preview" id="uploadPreview"></div>
+          <button class="btn btn-primary btn-block" type="submit" id="uploadBtn" disabled><%- include('../partials/icons', { icon: 'plus' }) %> Enviar fotos</button>
+        </form>
+        <% } else { %>
+          <div class="alert alert-info">Limite de 15 fotos atingido. Exclua alguma foto para enviar novas.</div>
+        <% } %>
+
+        <% if (prop.images.length) { %>
+        <div class="image-grid" id="imageGrid" data-sort-url="/admin/imoveis/<%= prop.id %>/imagens/ordenar">
+          <% for (const im of prop.images) { %>
+          <div class="image-item <%= im.is_cover ? 'is-cover' : '' %>" draggable="true" data-id="<%= im.id %>">
+            <img src="/uploads/<%= im.filename %>" alt="">
+            <% if (im.is_cover) { %><span class="badge badge-accent cover-badge">Capa</span><% } %>
+            <div class="image-actions">
+              <% if (!im.is_cover) { %>
+              <form method="post" action="/admin/imoveis/<%= prop.id %>/imagens/<%= im.id %>/capa"><button class="btn btn-sm btn-light" type="submit" title="Definir como capa"><%- include('../partials/icons', { icon: 'star' }) %></button></form>
+              <% } %>
+              <form method="post" action="/admin/imoveis/<%= prop.id %>/imagens/<%= im.id %>/excluir" data-confirm="Excluir esta foto?"><button class="btn btn-sm btn-danger" type="submit" title="Excluir"><%- include('../partials/icons', { icon: 'trash' }) %></button></form>
+            </div>
+          </div>
+          <% } %>
+        </div>
+        <p class="hint">Arraste as fotos para reordenar. A capa aparece sempre primeiro no site.</p>
+        <% } %>
+      </div>
+
+      <% if (typeof leads !== 'undefined' && leads.length) { %>
+      <div class="card card-pad">
+        <h3 class="card-title"><%- include('../partials/icons', { icon: 'inbox' }) %> Interessados recentes</h3>
+        <ul class="simple-list">
+          <% for (const l of leads) { %>
+          <li><a href="/admin/solicitacoes/<%= l.id %>"><%= l.name %></a><span class="badge badge-status status-<%= l.status %>"><%= utils.leadStatus(l.status).label %></span></li>
+          <% } %>
+        </ul>
+      </div>
+      <% } %>
+
+      <div class="card card-pad danger-zone">
+        <h3 class="card-title">Excluir imóvel</h3>
+        <p class="text-muted">Remove o anúncio e todas as fotos. As solicitações ficam registradas sem vínculo com o imóvel. Prefira o status <strong>Inativo</strong> para apenas ocultar.</p>
+        <form method="post" action="/admin/imoveis/<%= prop.id %>/excluir" data-confirm="Tem certeza que deseja excluir o imóvel <%= prop.code %>? Esta ação não pode ser desfeita.">
+          <button class="btn btn-danger" type="submit"><%- include('../partials/icons', { icon: 'trash' }) %> Excluir imóvel</button>
+        </form>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<%- include('partials/bottom') %>

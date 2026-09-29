@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acesso restrito · <%= settings.site_name %></title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/site.css">
+  <link rel="stylesheet" href="/static/css/admin.css">
+</head>
+<body class="login-page">
+  <div class="login-panel">
+    <div class="login-art">
+      <a href="/" class="brand brand-light"><span class="brand-mark"><%- include('../partials/icons', { icon: 'home' }) %></span><span class="brand-text"><%= settings.site_name %></span></a>
+      <div>
+        <h1>Painel de gestão</h1>
+        <p>Gerencie imóveis, fotos, solicitações e converse com os clientes em um só lugar.</p>
+      </div>
+      <ul>
+        <li><%- include('../partials/icons', { icon: 'building' }) %> Cadastro completo de imóveis</li>
+        <li><%- include('../partials/icons', { icon: 'chat' }) %> Chat com os interessados</li>
+        <li><%- include('../partials/icons', { icon: 'shield' }) %> Acesso protegido com captcha</li>
+      </ul>
+    </div>
+    <div class="login-form-wrap">
+      <h2>Entrar</h2>
+      <p class="text-muted">Acesso exclusivo para corretores e administradores.</p>
+      <% if (error) { %><div class="alert alert-error"><%- include('../partials/icons', { icon: 'info' }) %><span><%= error %></span></div><% } %>
+      <form method="post" action="/admin/login" autocomplete="on">
+        <div class="field">
+          <label for="l-user">Usuário</label>
+          <input id="l-user" name="username" type="text" required autofocus autocomplete="username">
+        </div>
+        <div class="field">
+          <label for="l-pass">Senha</label>
+          <div class="password-wrap">
+            <input id="l-pass" name="password" type="password" required autocomplete="current-password">
+            <button type="button" class="password-toggle" data-toggle-password="l-pass" aria-label="Mostrar senha"><%- include('../partials/icons', { icon: 'eye' }) %></button>
+          </div>
+        </div>
+        <%- include('../partials/captcha', { scope: 'login' }) %>
+        <button class="btn btn-primary btn-block btn-lg" type="submit"><%- include('../partials/icons', { icon: 'key' }) %> Entrar</button>
+      </form>
+      <a href="/" class="link-muted back-link"><%- include('../partials/icons', { icon: 'arrow' }) %> Voltar ao site</a>
+    </div>
+  </div>
+  <script src="/static/js/site.js" defer></script>
+  <script src="/static/js/admin.js" defer></script>
+</body>
+</html>

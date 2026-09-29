@@ -1,0 +1,100 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+<% const st = utils.leadStatus(lead.status); const closed = !!st.closed; %>
+
+<section class="page-hero compact">
+  <div class="container">
+    <nav class="breadcrumb"><a href="/">Início</a> <span>/</span> <a href="/acompanhar">Acompanhar</a> <span>/</span> <span><%= lead.protocol %></span></nav>
+    <div class="track-detail-head">
+      <div>
+        <span class="prop-code">Protocolo <%= lead.protocol %></span>
+        <h1><%= lead.property_title || 'Contato geral' %></h1>
+        <% if (lead.property_code) { %><p>Cód. <%= lead.property_code %> · <%= [lead.property_neighborhood, lead.property_city].filter(Boolean).join(', ') %> · <a href="/imovel/<%= lead.property_code %>">ver anúncio</a></p><% } %>
+      </div>
+      <span class="badge badge-status badge-lg status-<%= lead.status %>"><%= st.label %></span>
+    </div>
+  </div>
+</section>
+
+<section class="section pt-sm">
+  <div class="container track-detail-layout">
+    <div class="track-detail-main">
+      <div class="card card-pad">
+        <h2 class="card-title">Andamento</h2>
+        <% if (st.step > 0) { %>
+        <ol class="stepper">
+          <% for (const [key, s] of steps) { const state = s.step < st.step ? 'done' : s.step === st.step ? 'current' : ''; %>
+            <li class="<%= state %>"><span class="stepper-dot"><% if (state === 'done') { %><%- include('../partials/icons', { icon: 'check' }) %><% } else { %><%= s.step %><% } %></span><span class="stepper-label"><%= s.label %></span></li>
+          <% } %>
+        </ol>
+        <% } %>
+        <div class="status-desc alert alert-<%= lead.status === 'recusado' || lead.status === 'cancelado' ? 'error' : lead.status === 'contrato' ? 'success' : 'info' %>">
+          <%- include('../partials/icons', { icon: lead.status === 'contrato' ? 'check' : 'info' }) %>
+          <span><strong><%= st.label %>.</strong> <%= st.desc %>
+          <% if (lead.status === 'visita_agendada' && lead.visit_at) { %> <strong>Data da visita: <%= utils.formatDateTime(lead.visit_at) %>.</strong><% } %></span>
+        </div>
+
+        <h3 class="mt-md">Histórico</h3>
+        <ul class="timeline">
+          <% for (const h of history) { const hs = utils.leadStatus(h.status); %>
+            <li>
+              <span class="timeline-dot"></span>
+              <div>
+                <strong><%= hs.label %></strong>
+                <% if (h.note) { %><p><%= h.note %></p><% } %>
+                <time><%= utils.formatDateTime(h.created_at) %><% if (h.user_name) { %> · <%= h.user_name %><% } %></time>
+              </div>
+            </li>
+          <% } %>
+        </ul>
+      </div>
+
+      <div class="card card-pad">
+        <h2 class="card-title">Seus dados</h2>
+        <dl class="dl">
+          <div><dt>Nome</dt><dd><%= lead.name %></dd></div>
+          <div><dt>E-mail</dt><dd><%= lead.email %></dd></div>
+          <div><dt>Celular</dt><dd><%= utils.formatPhone(lead.phone) %></dd></div>
+          <div><dt>Enviada em</dt><dd><%= utils.formatDateTime(lead.created_at) %></dd></div>
+          <% if (lead.message) { %><div class="full"><dt>Sua mensagem</dt><dd><%= lead.message %></dd></div><% } %>
+        </dl>
+      </div>
+    </div>
+
+    <aside class="track-detail-side">
+      <div class="card chat-card" id="chat" data-endpoint="/api/chat/<%= lead.protocol %>/messages" data-self="cliente" data-closed="<%= closed ? '1' : '0' %>">
+        <div class="chat-head">
+          <div class="broker-box">
+            <span class="avatar"><%= broker ? broker.name.charAt(0) : 'C' %></span>
+            <div>
+              <strong><%= broker ? broker.name : 'Corretor' %></strong>
+              <span><%= broker && broker.creci ? broker.creci : 'Chat com o corretor' %></span>
+            </div>
+          </div>
+          <% if (broker && broker.whatsapp) { %>
+            <a class="btn btn-whatsapp btn-sm" href="<%= utils.whatsappLink(broker.whatsapp, `Olá ${broker.name}, sobre o protocolo ${lead.protocol}`) %>" target="_blank" rel="noopener"><%- include('../partials/icons', { icon: 'whatsapp' }) %></a>
+          <% } %>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+          <% for (const m of messages) { %>
+            <div class="msg msg-<%= m.sender %><%= m.sender === 'cliente' ? ' msg-self' : '' %>" data-id="<%= m.id %>">
+              <% if (m.sender === 'corretor') { %><span class="msg-author"><%= m.user_name || 'Corretor' %></span><% } %>
+              <p><%= m.body %></p>
+              <time><%= utils.formatDateTime(m.created_at) %></time>
+            </div>
+          <% } %>
+        </div>
+        <% if (closed) { %>
+          <div class="chat-closed"><%- include('../partials/icons', { icon: 'info' }) %> Esta solicitação foi encerrada. O chat está apenas para leitura.</div>
+        <% } else { %>
+        <form class="chat-form" id="chatForm">
+          <textarea id="chatInput" rows="1" maxlength="1000" placeholder="Escreva sua mensagem..." required></textarea>
+          <button class="btn btn-primary" type="submit" aria-label="Enviar"><%- include('../partials/icons', { icon: 'send' }) %></button>
+        </form>
+        <% } %>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<%- include('../partials/footer', { extraScripts: '<script src="/static/js/chat.js" defer></script>' }) %>

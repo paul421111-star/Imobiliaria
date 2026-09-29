@@ -1,0 +1,60 @@
+<%- include('partials/top') %>
+
+<form method="post" action="/admin/configuracoes" class="settings-layout">
+  <div class="settings-main">
+    <section class="card card-pad">
+      <h2 class="card-title"><%- include('../partials/icons', { icon: 'home' }) %> Identidade do site</h2>
+      <div class="form-grid-2">
+        <div class="field"><label for="site_name">Nome da imobiliária *</label><input id="site_name" name="site_name" type="text" required value="<%= s.site_name %>"></div>
+        <div class="field"><label for="site_tagline">Slogan</label><input id="site_tagline" name="site_tagline" type="text" value="<%= s.site_tagline %>"></div>
+      </div>
+      <div class="field"><label for="hero_title">Título principal (página inicial)</label><input id="hero_title" name="hero_title" type="text" value="<%= s.hero_title %>"></div>
+      <div class="field"><label for="hero_subtitle">Subtítulo (página inicial)</label><input id="hero_subtitle" name="hero_subtitle" type="text" value="<%= s.hero_subtitle %>"></div>
+      <div class="field"><label for="about">Texto "Sobre nós"</label><textarea id="about" name="about" rows="4"><%= s.about %></textarea></div>
+      <div class="field"><label for="footer_text">Texto do rodapé (CRECI, razão social...)</label><input id="footer_text" name="footer_text" type="text" value="<%= s.footer_text %>"></div>
+    </section>
+
+    <section class="card card-pad">
+      <h2 class="card-title"><%- include('../partials/icons', { icon: 'phone' }) %> Contato e WhatsApp</h2>
+      <div class="form-grid-2">
+        <div class="field"><label for="whatsapp">WhatsApp (somente números, com 55 + DDD) *</label><input id="whatsapp" name="whatsapp" type="text" inputmode="numeric" value="<%= s.whatsapp %>" placeholder="5511999999999"><small class="hint">Usado no botão flutuante e em todos os links "Falar no WhatsApp".</small></div>
+        <div class="field"><label for="phone">Telefone fixo / exibição</label><input id="phone" name="phone" type="text" value="<%= s.phone %>" placeholder="(11) 4002-8922"></div>
+      </div>
+      <div class="field"><label for="whatsapp_message">Mensagem padrão do WhatsApp</label><input id="whatsapp_message" name="whatsapp_message" type="text" value="<%= s.whatsapp_message %>"></div>
+      <div class="form-grid-2">
+        <div class="field"><label for="email">E-mail de contato</label><input id="email" name="email" type="email" value="<%= s.email %>"></div>
+        <div class="field"><label for="business_hours">Horário de atendimento</label><input id="business_hours" name="business_hours" type="text" value="<%= s.business_hours %>"></div>
+      </div>
+      <div class="field"><label for="address">Endereço</label><input id="address" name="address" type="text" value="<%= s.address %>"></div>
+    </section>
+
+    <section class="card card-pad">
+      <h2 class="card-title"><%- include('../partials/icons', { icon: 'instagram' }) %> Redes sociais</h2>
+      <p class="text-muted">Cole o link completo do perfil. Redes em branco não aparecem no site.</p>
+      <div class="form-grid-2">
+        <div class="field"><label for="instagram"><%- include('../partials/icons', { icon: 'instagram' }) %> Instagram</label><input id="instagram" name="instagram" type="text" value="<%= s.instagram %>" placeholder="https://instagram.com/suaimobiliaria"></div>
+        <div class="field"><label for="facebook"><%- include('../partials/icons', { icon: 'facebook' }) %> Facebook</label><input id="facebook" name="facebook" type="text" value="<%= s.facebook %>" placeholder="https://facebook.com/suaimobiliaria"></div>
+        <div class="field"><label for="tiktok"><%- include('../partials/icons', { icon: 'tiktok' }) %> TikTok</label><input id="tiktok" name="tiktok" type="text" value="<%= s.tiktok %>" placeholder="https://tiktok.com/@suaimobiliaria"></div>
+        <div class="field"><label for="youtube"><%- include('../partials/icons', { icon: 'youtube' }) %> YouTube</label><input id="youtube" name="youtube" type="text" value="<%= s.youtube %>" placeholder="https://youtube.com/@suaimobiliaria"></div>
+        <div class="field"><label for="linkedin"><%- include('../partials/icons', { icon: 'linkedin' }) %> LinkedIn</label><input id="linkedin" name="linkedin" type="text" value="<%= s.linkedin %>" placeholder="https://linkedin.com/company/suaimobiliaria"></div>
+      </div>
+    </section>
+
+    <section class="card card-pad">
+      <h2 class="card-title"><%- include('../partials/icons', { icon: 'file' }) %> Requisitos para alugar</h2>
+      <p class="text-muted">Uma regra por linha. Aparece na página do imóvel e em "Sobre".</p>
+      <div class="field"><textarea id="rental_requirements" name="rental_requirements" rows="6"><%= s.rental_requirements %></textarea></div>
+    </section>
+  </div>
+
+  <aside class="settings-side">
+    <div class="card card-pad sticky">
+      <h3 class="card-title">Salvar</h3>
+      <p class="text-muted">As alterações entram no ar imediatamente em todas as páginas do site.</p>
+      <button class="btn btn-accent btn-block btn-lg" type="submit"><%- include('../partials/icons', { icon: 'check' }) %> Salvar configurações</button>
+      <a href="/" target="_blank" rel="noopener" class="btn btn-outline btn-block mt-sm"><%- include('../partials/icons', { icon: 'external' }) %> Ver o site</a>
+    </div>
+  </aside>
+</form>
+
+<%- include('partials/bottom') %>

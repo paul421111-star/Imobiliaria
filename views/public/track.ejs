@@ -1,0 +1,72 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<section class="page-hero">
+  <div class="container">
+    <nav class="breadcrumb"><a href="/">Início</a> <span>/</span> <span>Acompanhar solicitação</span></nav>
+    <h1>Acompanhe sua solicitação</h1>
+    <p>Veja o andamento do seu processo de locação e converse com o corretor pelo chat.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container narrow">
+    <% if (!clientSession) { %>
+      <div class="card card-pad track-login">
+        <div class="track-login-icon"><%- include('../partials/icons', { icon: 'file', size: 'xl' }) %></div>
+        <h2>Identifique-se</h2>
+        <p>Informe o <strong>e-mail</strong> e o <strong>celular</strong> usados no formulário de interesse.</p>
+        <% if (formError) { %><div class="alert alert-error"><%- include('../partials/icons', { icon: 'info' }) %><span><%= formError %></span></div><% } %>
+        <form method="post" action="/acompanhar" novalidate>
+          <div class="field">
+            <label for="t-email">E-mail</label>
+            <input id="t-email" type="email" name="email" required autocomplete="email" placeholder="voce@email.com">
+          </div>
+          <div class="field">
+            <label for="t-phone">Celular</label>
+            <input id="t-phone" type="tel" name="phone" required data-phone placeholder="(11) 99999-9999" autocomplete="tel">
+          </div>
+          <%- include('../partials/captcha', { scope: 'acompanhar' }) %>
+          <button class="btn btn-primary btn-block btn-lg" type="submit"><%- include('../partials/icons', { icon: 'search' }) %> Consultar</button>
+        </form>
+        <p class="form-note">Ainda não enviou nenhuma solicitação? <a href="/imoveis">Encontre um imóvel</a> e fale com o corretor.</p>
+      </div>
+    <% } else { %>
+      <div class="track-head">
+        <div>
+          <h2>Olá, <%= clientSession.name.split(' ')[0] %>!</h2>
+          <p><%= clientSession.email %> · <%= utils.formatPhone(clientSession.phone) %></p>
+        </div>
+        <a href="/acompanhar/sair" class="btn btn-outline btn-sm"><%- include('../partials/icons', { icon: 'logout' }) %> Sair</a>
+      </div>
+
+      <% if (leads.length === 0) { %>
+        <div class="empty-state"><h3>Nenhuma solicitação encontrada</h3><p>Envie seu interesse em um imóvel para começar.</p><a href="/imoveis" class="btn btn-primary">Ver imóveis</a></div>
+      <% } else { %>
+      <div class="track-list">
+        <% for (const l of leads) { const st = utils.leadStatus(l.status); %>
+        <a href="/acompanhar/<%= l.protocol %>" class="track-item card">
+          <div class="track-item-media">
+            <% if (l.property_cover) { %><img src="/uploads/<%= l.property_cover %>" alt=""><% } else { %><span class="prop-card-noimg"><%- include('../partials/icons', { icon: 'chat' }) %></span><% } %>
+          </div>
+          <div class="track-item-body">
+            <div class="track-item-top">
+              <span class="prop-code">Protocolo <%= l.protocol %></span>
+              <span class="badge badge-status status-<%= l.status %>"><%= st.label %></span>
+            </div>
+            <h3><%= l.property_title || 'Contato geral' %></h3>
+            <p><%= l.property_code ? 'Cód. ' + l.property_code + ' · ' : '' %>Enviada em <%= utils.formatDate(l.created_at) %> · Atualizada em <%= utils.formatDateTime(l.updated_at) %></p>
+          </div>
+          <div class="track-item-side">
+            <% if (l.unread > 0) { %><span class="unread-pill"><%= l.unread %> nova<%= l.unread > 1 ? 's' : '' %></span><% } %>
+            <%- include('../partials/icons', { icon: 'chevron' }) %>
+          </div>
+        </a>
+        <% } %>
+      </div>
+      <% } %>
+    <% } %>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

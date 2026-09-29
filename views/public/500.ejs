@@ -1,0 +1,12 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+<section class="section">
+  <div class="container empty-state tall">
+    <strong class="error-code">500</strong>
+    <h1>Algo deu errado</h1>
+    <p>Ocorreu um erro inesperado. Tente novamente em instantes.</p>
+    <% if (typeof message !== 'undefined' && message) { %><p class="text-muted"><small><%= message %></small></p><% } %>
+    <div class="cta-actions"><a href="/" class="btn btn-primary">Voltar ao início</a></div>
+  </div>
+</section>
+<%- include('../partials/footer') %>

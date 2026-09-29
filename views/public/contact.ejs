@@ -1,0 +1,64 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<section class="page-hero">
+  <div class="container">
+    <nav class="breadcrumb"><a href="/">Início</a> <span>/</span> <span>Contato</span></nav>
+    <h1>Fale conosco</h1>
+    <p>Tire dúvidas, peça indicações de imóveis ou solicite uma avaliação do seu imóvel para locação.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container contact-layout">
+    <div class="contact-info">
+      <div class="card card-pad">
+        <h2 class="card-title">Canais de atendimento</h2>
+        <ul class="contact-list big">
+          <% if (settings.whatsapp) { %><li><span class="ico"><%- include('../partials/icons', { icon: 'whatsapp' }) %></span><div><strong>WhatsApp</strong><a href="<%= utils.whatsappLink(settings.whatsapp, settings.whatsapp_message) %>" target="_blank" rel="noopener"><%= utils.formatPhone(settings.whatsapp.replace(/^55/, '')) %></a></div></li><% } %>
+          <% if (settings.phone) { %><li><span class="ico"><%- include('../partials/icons', { icon: 'phone' }) %></span><div><strong>Telefone</strong><a href="tel:<%= settings.phone.replace(/\D/g,'') %>"><%= settings.phone %></a></div></li><% } %>
+          <% if (settings.email) { %><li><span class="ico"><%- include('../partials/icons', { icon: 'mail' }) %></span><div><strong>E-mail</strong><a href="mailto:<%= settings.email %>"><%= settings.email %></a></div></li><% } %>
+          <% if (settings.address) { %><li><span class="ico"><%- include('../partials/icons', { icon: 'pin' }) %></span><div><strong>Endereço</strong><span><%= settings.address %></span></div></li><% } %>
+          <% if (settings.business_hours) { %><li><span class="ico"><%- include('../partials/icons', { icon: 'clock' }) %></span><div><strong>Horário</strong><span><%= settings.business_hours %></span></div></li><% } %>
+        </ul>
+        <div class="social-links dark">
+          <% const socials = [['instagram','Instagram'],['facebook','Facebook'],['tiktok','TikTok'],['youtube','YouTube'],['linkedin','LinkedIn']]; %>
+          <% for (const [key, label] of socials) { if (settings[key]) { %>
+            <a href="<%= settings[key] %>" target="_blank" rel="noopener" aria-label="<%= label %>" title="<%= label %>"><%- include('../partials/icons', { icon: key }) %></a>
+          <% } } %>
+        </div>
+      </div>
+    </div>
+
+    <div class="card card-pad" id="form">
+      <h2 class="card-title">Envie uma mensagem</h2>
+      <% if (formError) { %><div class="alert alert-error"><%- include('../partials/icons', { icon: 'info' }) %><span><%= formError %></span></div><% } %>
+      <form method="post" action="/contato" class="lead-form" novalidate>
+        <div class="field-row">
+          <div class="field">
+            <label for="c-name">Nome completo *</label>
+            <input id="c-name" name="name" type="text" required value="<%= formData.name || (clientSession && clientSession.name) || '' %>" autocomplete="name">
+          </div>
+          <div class="field">
+            <label for="c-phone">Celular (WhatsApp) *</label>
+            <input id="c-phone" name="phone" type="tel" required data-phone value="<%= formData.phone || (clientSession && utils.formatPhone(clientSession.phone)) || '' %>" placeholder="(11) 99999-9999" autocomplete="tel">
+          </div>
+        </div>
+        <div class="field">
+          <label for="c-email">E-mail *</label>
+          <input id="c-email" name="email" type="email" required value="<%= formData.email || (clientSession && clientSession.email) || '' %>" autocomplete="email">
+        </div>
+        <div class="field">
+          <label for="c-message">Mensagem *</label>
+          <textarea id="c-message" name="message" rows="5" required maxlength="1500" placeholder="Conte o que você procura: tipo de imóvel, região, faixa de valor..."><%= formData.message || '' %></textarea>
+        </div>
+        <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <%- include('../partials/captcha', { scope: 'contato' }) %>
+        <button class="btn btn-accent btn-lg" type="submit"><%- include('../partials/icons', { icon: 'send' }) %> Enviar mensagem</button>
+        <p class="form-note"><%- include('../partials/icons', { icon: 'shield' }) %> Você receberá um protocolo para acompanhar a resposta e conversar pelo chat.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

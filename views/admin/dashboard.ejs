@@ -1,0 +1,68 @@
+<%- include('partials/top') %>
+
+<div class="stat-grid">
+  <a href="/admin/imoveis?status=disponivel" class="stat-card"><span class="stat-icon blue"><%- include('../partials/icons', { icon: 'building' }) %></span><div><strong><%= stats.available %></strong><span>Imóveis disponíveis</span><small><%= stats.properties %> cadastrados · <%= stats.rented %> alugados</small></div></a>
+  <a href="/admin/solicitacoes?status=novo" class="stat-card"><span class="stat-icon orange"><%- include('../partials/icons', { icon: 'inbox' }) %></span><div><strong><%= stats.leadsNew %></strong><span>Novas solicitações</span><small><%= stats.leadsOpen %> em andamento · <%= stats.leadsMonth %> este mês</small></div></a>
+  <a href="/admin/solicitacoes?status=abertas" class="stat-card"><span class="stat-icon green"><%- include('../partials/icons', { icon: 'chat' }) %></span><div><strong><%= stats.unread %></strong><span>Mensagens não lidas</span><small>Clientes aguardando resposta</small></div></a>
+  <div class="stat-card"><span class="stat-icon purple"><%- include('../partials/icons', { icon: 'eye' }) %></span><div><strong><%= stats.views %></strong><span>Visualizações de anúncios</span><small>Total acumulado</small></div></div>
+</div>
+
+<div class="admin-grid-2">
+  <section class="card">
+    <div class="card-head">
+      <h2>Solicitações recentes</h2>
+      <a href="/admin/solicitacoes" class="link-arrow">Ver todas <%- include('../partials/icons', { icon: 'arrow' }) %></a>
+    </div>
+    <% if (recentLeads.length === 0) { %>
+      <div class="empty-state small">Nenhuma solicitação ainda. Quando um cliente enviar interesse pelo site, ela aparecerá aqui.</div>
+    <% } else { %>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Cliente</th><th>Imóvel</th><th>Status</th><th>Atualizada</th><th></th></tr></thead>
+        <tbody>
+          <% for (const l of recentLeads) { const st = utils.leadStatus(l.status); %>
+          <tr>
+            <td><a href="/admin/solicitacoes/<%= l.id %>" class="strong"><%= l.name %></a><br><small class="text-muted"><%= l.protocol %></small></td>
+            <td><%= l.property_code ? l.property_code + ' · ' + utils.truncate(l.property_title, 32) : 'Contato geral' %></td>
+            <td><span class="badge badge-status status-<%= l.status %>"><%= st.label %></span></td>
+            <td><small><%= utils.formatDateTime(l.updated_at) %></small></td>
+            <td class="text-right"><% if (l.unread > 0) { %><span class="unread-pill"><%= l.unread %></span> <% } %><a href="/admin/solicitacoes/<%= l.id %>" class="btn btn-sm btn-outline">Abrir</a></td>
+          </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+    <% } %>
+  </section>
+
+  <div class="admin-stack">
+    <section class="card card-pad">
+      <h2 class="card-title">Funil de atendimento</h2>
+      <ul class="funnel">
+        <% const totalLeads = byStatus.reduce((a, b) => a + b.n, 0) || 1; %>
+        <% for (const [key, s] of Object.entries(LEAD_STATUS)) { const n = (byStatus.find((b) => b.status === key) || { n: 0 }).n; if (n === 0) continue; %>
+        <li>
+          <div class="funnel-label"><span class="badge badge-status status-<%= key %>"><%= s.label %></span><strong><%= n %></strong></div>
+          <div class="funnel-bar"><span style="width: <%= Math.round((n / totalLeads) * 100) %>%"></span></div>
+        </li>
+        <% } %>
+        <% if (totalLeads === 1 && byStatus.length === 0) { %><li class="text-muted">Sem dados ainda.</li><% } %>
+      </ul>
+    </section>
+    <section class="card card-pad">
+      <h2 class="card-title">Anúncios mais vistos</h2>
+      <ul class="simple-list">
+        <% for (const p of topProps) { %>
+        <li><a href="/imovel/<%= p.code %>" target="_blank" rel="noopener"><%= p.code %> · <%= utils.truncate(p.title, 40) %></a><span><%= p.views %> <%- include('../partials/icons', { icon: 'eye' }) %></span></li>
+        <% } %>
+      </ul>
+    </section>
+    <section class="card card-pad quick-actions">
+      <h2 class="card-title">Ações rápidas</h2>
+      <a href="/admin/imoveis/novo" class="btn btn-accent"><%- include('../partials/icons', { icon: 'plus' }) %> Cadastrar imóvel</a>
+      <a href="/admin/configuracoes" class="btn btn-outline"><%- include('../partials/icons', { icon: 'settings' }) %> Redes sociais e WhatsApp</a>
+    </section>
+  </div>
+</div>
+
+<%- include('partials/bottom') %>

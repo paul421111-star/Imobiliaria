@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> · Painel · <%= settings.site_name %></title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/site.css">
+  <link rel="stylesheet" href="/static/css/admin.css">
+</head>
+<body class="admin-body">
+<% const p = currentPath.replace(/^\/admin/, '') || '/'; %>
+<div class="admin-shell">
+  <aside class="admin-sidebar" id="adminSidebar">
+    <a href="/admin" class="brand brand-light"><span class="brand-mark"><%- include('../../partials/icons', { icon: 'home' }) %></span><span class="brand-text"><%= settings.site_name %></span></a>
+    <nav class="admin-nav">
+      <a href="/admin" class="<%= p === '/' ? 'active' : '' %>"><%- include('../../partials/icons', { icon: 'grid' }) %> Painel</a>
+      <a href="/admin/imoveis" class="<%= p.startsWith('/imoveis') ? 'active' : '' %>"><%- include('../../partials/icons', { icon: 'building' }) %> Imóveis</a>
+      <a href="/admin/solicitacoes" class="<%= p.startsWith('/solicitacoes') ? 'active' : '' %>"><%- include('../../partials/icons', { icon: 'inbox' }) %> Solicitações
+        <% if (newLeads > 0) { %><span class="nav-badge"><%= newLeads %></span><% } %>
+      </a>
+      <a href="/admin/solicitacoes?status=abertas" class="<%= p.startsWith('/solicitacoes') && typeof query !== 'undefined' && query && query.status === 'abertas' ? 'active' : '' %>"><%- include('../../partials/icons', { icon: 'chat' }) %> Chats
+        <% if (unreadTotal > 0) { %><span class="nav-badge accent" id="navUnread"><%= unreadTotal %></span><% } else { %><span class="nav-badge accent" id="navUnread" hidden>0</span><% } %>
+      </a>
+      <a href="/admin/configuracoes" class="<%= p.startsWith('/configuracoes') ? 'active' : '' %>"><%- include('../../partials/icons', { icon: 'settings' }) %> Site e redes sociais</a>
+      <% if (user.role === 'admin') { %>
+      <a href="/admin/usuarios" class="<%= p.startsWith('/usuarios') ? 'active' : '' %>"><%- include('../../partials/icons', { icon: 'users' }) %> Usuários</a>
+      <% } %>
+    </nav>
+    <div class="admin-sidebar-foot">
+      <a href="/" target="_blank" rel="noopener"><%- include('../../partials/icons', { icon: 'external' }) %> Ver site</a>
+      <a href="/admin/perfil" class="<%= p.startsWith('/perfil') ? 'active' : '' %>"><%- include('../../partials/icons', { icon: 'user' }) %> Meu perfil</a>
+      <a href="/admin/logout"><%- include('../../partials/icons', { icon: 'logout' }) %> Sair</a>
+    </div>
+  </aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <button class="nav-toggle" id="sidebarToggle" aria-label="Menu"><%- include('../../partials/icons', { icon: 'menu' }) %></button>
+      <h1 class="admin-title"><%= title %></h1>
+      <div class="admin-user">
+        <span class="avatar"><%= user.name.charAt(0) %></span>
+        <div><strong><%= user.name %></strong><span><%= user.role === 'admin' ? 'Administrador' : 'Corretor(a)' %></span></div>
+      </div>
+    </header>
+    <main class="admin-content">
+      <% if (flash) { %><div class="alert alert-<%= flash.type %>" role="status"><%- include('../../partials/icons', { icon: flash.type === 'success' ? 'check' : 'info' }) %><span><%= flash.text %></span><button class="alert-close" aria-label="Fechar" onclick="this.parentElement.remove()">&times;</button></div><% } %>

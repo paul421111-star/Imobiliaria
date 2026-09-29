@@ -1,0 +1,189 @@
+<%- include('../partials/head', { metaDescription: utils.truncate(prop.description, 155) }) %>
+<%- include('../partials/header') %>
+
+<% const status = utils.propStatus(prop.status); %>
+<% const waText = `Olá! Tenho interesse no imóvel ${prop.code} - ${prop.title} (${utils.money(prop.price)}/mês). Pode me passar mais informações?`; %>
+<% const waNumber = (prop.broker && prop.broker.whatsapp) ? prop.broker.whatsapp : settings.whatsapp; %>
+
+<section class="section pt-sm">
+  <div class="container">
+    <nav class="breadcrumb"><a href="/">Início</a> <span>/</span> <a href="/imoveis">Imóveis</a> <span>/</span> <a href="/imoveis?tipo=<%= prop.type %>"><%= utils.typeLabel(prop.type) %></a> <span>/</span> <span><%= prop.code %></span></nav>
+
+    <div class="gallery" id="gallery">
+      <% if (prop.images.length) { %>
+        <div class="gallery-main">
+          <img src="/uploads/<%= prop.images[0].filename %>" alt="<%= prop.title %>" id="galleryMain" data-index="0">
+          <% if (prop.images.length > 1) { %>
+            <button class="gallery-nav prev" type="button" data-dir="-1" aria-label="Anterior"><%- include('../partials/icons', { icon: 'chevron' }) %></button>
+            <button class="gallery-nav next" type="button" data-dir="1" aria-label="Próxima"><%- include('../partials/icons', { icon: 'chevron' }) %></button>
+            <span class="gallery-counter"><span id="galleryIndex">1</span>/<%= prop.images.length %></span>
+          <% } %>
+          <div class="prop-card-badges">
+            <span class="badge badge-dark"><%= utils.typeLabel(prop.type) %></span>
+            <span class="badge badge-<%= status.color %>"><%= status.label %></span>
+            <% if (prop.featured) { %><span class="badge badge-accent"><%- include('../partials/icons', { icon: 'star' }) %> Destaque</span><% } %>
+          </div>
+        </div>
+        <% if (prop.images.length > 1) { %>
+        <div class="gallery-thumbs" id="galleryThumbs">
+          <% prop.images.forEach((im, i) => { %>
+            <button type="button" class="<%= i === 0 ? 'active' : '' %>" data-index="<%= i %>" data-src="/uploads/<%= im.filename %>"><img src="/uploads/<%= im.filename %>" alt="Foto <%= i + 1 %>" loading="lazy"></button>
+          <% }) %>
+        </div>
+        <% } %>
+      <% } else { %>
+        <div class="gallery-main gallery-empty"><%- include('../partials/icons', { icon: 'image', size: 'xl' }) %><span>Fotos em breve</span></div>
+      <% } %>
+    </div>
+
+    <div class="detail-layout">
+      <div class="detail-main">
+        <div class="detail-title">
+          <div>
+            <h1><%= prop.title %></h1>
+            <p class="detail-location"><%- include('../partials/icons', { icon: 'pin' }) %> <%= [prop.address, prop.neighborhood, prop.city].filter(Boolean).join(', ') %> - <%= prop.state %><% if (prop.zip) { %> · CEP <%= prop.zip %><% } %></p>
+          </div>
+          <span class="prop-code">Cód. <%= prop.code %></span>
+        </div>
+
+        <ul class="detail-specs">
+          <% if (prop.area) { %><li><%- include('../partials/icons', { icon: 'area' }) %><strong><%= prop.area %> m²</strong><span>área</span></li><% } %>
+          <li><%- include('../partials/icons', { icon: 'bed' }) %><strong><%= prop.bedrooms %></strong><span><%= prop.bedrooms === 1 ? 'dormitório' : 'dormitórios' %><% if (prop.suites) { %> (<%= prop.suites %> suíte<%= prop.suites > 1 ? 's' : '' %>)<% } %></span></li>
+          <li><%- include('../partials/icons', { icon: 'bath' }) %><strong><%= prop.bathrooms %></strong><span><%= prop.bathrooms === 1 ? 'banheiro' : 'banheiros' %></span></li>
+          <li><%- include('../partials/icons', { icon: 'car' }) %><strong><%= prop.parking %></strong><span><%= prop.parking === 1 ? 'vaga' : 'vagas' %></span></li>
+          <li><%- include('../partials/icons', { icon: 'paw' }) %><strong><%= prop.pets_allowed ? 'Sim' : 'Não' %></strong><span>aceita pets</span></li>
+          <li><%- include('../partials/icons', { icon: 'sofa' }) %><strong><%= prop.furnished ? 'Sim' : 'Não' %></strong><span>mobiliado</span></li>
+        </ul>
+
+        <div class="detail-block">
+          <h2>Sobre o imóvel</h2>
+          <div class="prose"><%- utils.escapeHtml(prop.description).replace(/\n/g, '<br>') %></div>
+        </div>
+
+        <% if (prop.features_list.length) { %>
+        <div class="detail-block">
+          <h2>Características e comodidades</h2>
+          <ul class="feature-list">
+            <% for (const f of prop.features_list) { %><li><%- include('../partials/icons', { icon: 'check' }) %> <%= f %></li><% } %>
+          </ul>
+        </div>
+        <% } %>
+
+        <div class="detail-block">
+          <h2>Condições de locação</h2>
+          <div class="conditions-grid">
+            <div><span>Aluguel</span><strong><%= utils.money(prop.price) %></strong></div>
+            <div><span>Condomínio</span><strong><%= prop.condo_fee ? utils.money(prop.condo_fee) : 'Isento / não informado' %></strong></div>
+            <div><span>IPTU (mensal)</span><strong><%= prop.iptu ? utils.money(prop.iptu) : 'Isento / não informado' %></strong></div>
+            <div class="total"><span>Total mensal estimado</span><strong><%= utils.money(prop.total) %></strong></div>
+            <div><span>Contrato mínimo</span><strong><%= prop.min_contract_months %> meses</strong></div>
+            <div><span>Caução</span><strong><%= prop.deposit_months ? prop.deposit_months + ' mês(es) de aluguel' : 'Conforme garantia escolhida' %></strong></div>
+          </div>
+          <details class="requirements">
+            <summary><%- include('../partials/icons', { icon: 'file' }) %> Requisitos e documentação para alugar</summary>
+            <ul>
+              <% for (const line of settings.rental_requirements.split('\n').filter(Boolean)) { %><li><%= line %></li><% } %>
+            </ul>
+          </details>
+        </div>
+
+        <% if (prop.video_url) { %>
+        <div class="detail-block">
+          <h2>Vídeo</h2>
+          <a class="btn btn-outline" href="<%= prop.video_url %>" target="_blank" rel="noopener"><%- include('../partials/icons', { icon: 'video' }) %> Assistir vídeo do imóvel</a>
+        </div>
+        <% } %>
+
+        <div class="detail-block">
+          <h2>Localização</h2>
+          <% const mapQuery = encodeURIComponent([prop.address, prop.neighborhood, prop.city, prop.state].filter(Boolean).join(', ')); %>
+          <div class="map-embed">
+            <iframe title="Mapa" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=<%= mapQuery %>&output=embed"></iframe>
+          </div>
+          <a class="link-arrow" href="https://www.google.com/maps/search/?api=1&query=<%= mapQuery %>" target="_blank" rel="noopener">Abrir no Google Maps <%- include('../partials/icons', { icon: 'external' }) %></a>
+        </div>
+      </div>
+
+      <aside class="detail-side">
+        <div class="contact-card" id="contato">
+          <div class="contact-price">
+            <span>Aluguel</span>
+            <strong><%= utils.money(prop.price) %><small>/mês</small></strong>
+            <% if (prop.condo_fee || prop.iptu) { %><em>Total aprox. <%= utils.money(prop.total) %>/mês</em><% } %>
+          </div>
+
+          <% if (prop.broker) { %>
+          <div class="broker-box">
+            <span class="avatar"><%= prop.broker.name.charAt(0) %></span>
+            <div>
+              <strong><%= prop.broker.name %></strong>
+              <span><%= prop.broker.creci || 'Corretor(a) responsável' %></span>
+            </div>
+          </div>
+          <% } %>
+
+          <div class="contact-buttons">
+            <a class="btn btn-whatsapp btn-block" href="<%= utils.whatsappLink(waNumber, waText) %>" target="_blank" rel="noopener"><%- include('../partials/icons', { icon: 'whatsapp' }) %> Falar no WhatsApp</a>
+            <% if (settings.phone) { %><a class="btn btn-outline btn-block" href="tel:<%= settings.phone.replace(/\D/g,'') %>"><%- include('../partials/icons', { icon: 'phone' }) %> <%= settings.phone %></a><% } %>
+          </div>
+
+          <div class="divider"><span>ou envie sua solicitação</span></div>
+
+          <% if (prop.status !== 'disponivel') { %>
+            <div class="alert alert-info"><%- include('../partials/icons', { icon: 'info' }) %><span>Este imóvel está <strong><%= status.label.toLowerCase() %></strong>. Fale conosco pelo WhatsApp para conhecer opções semelhantes.</span></div>
+          <% } else { %>
+          <form method="post" action="/imovel/<%= prop.code %>/interesse" class="lead-form" novalidate>
+            <% if (formError) { %><div class="alert alert-error"><%- include('../partials/icons', { icon: 'info' }) %><span><%= formError %></span></div><% } %>
+            <div class="field">
+              <label for="c-name">Nome completo *</label>
+              <input id="c-name" name="name" type="text" required minlength="3" value="<%= formData.name || (clientSession && clientSession.name) || '' %>" autocomplete="name">
+            </div>
+            <div class="field">
+              <label for="c-email">E-mail *</label>
+              <input id="c-email" name="email" type="email" required value="<%= formData.email || (clientSession && clientSession.email) || '' %>" autocomplete="email">
+            </div>
+            <div class="field">
+              <label for="c-phone">Celular (WhatsApp) *</label>
+              <input id="c-phone" name="phone" type="tel" required value="<%= formData.phone || (clientSession && utils.formatPhone(clientSession.phone)) || '' %>" placeholder="(11) 99999-9999" data-phone autocomplete="tel">
+            </div>
+            <div class="field">
+              <label for="c-message">Mensagem</label>
+              <textarea id="c-message" name="message" rows="3" maxlength="1500" placeholder="Gostaria de agendar uma visita..."><%= formData.message || `Olá, tenho interesse no imóvel ${prop.code}. Gostaria de mais informações e agendar uma visita.` %></textarea>
+            </div>
+            <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+            <%- include('../partials/captcha', { scope: 'contato' }) %>
+            <button class="btn btn-accent btn-block btn-lg" type="submit"><%- include('../partials/icons', { icon: 'send' }) %> Enviar solicitação</button>
+            <p class="form-note"><%- include('../partials/icons', { icon: 'shield' }) %> Você receberá um protocolo para acompanhar o andamento e conversar com o corretor pelo chat.</p>
+          </form>
+          <% } %>
+        </div>
+
+        <div class="side-card">
+          <h4>Compartilhar</h4>
+          <div class="share-row">
+            <a class="btn btn-sm btn-outline" href="https://wa.me/?text=<%= encodeURIComponent(prop.title + ' - ' + utils.money(prop.price) + '/mês') %>%20{{URL}}" data-share-wa target="_blank" rel="noopener"><%- include('../partials/icons', { icon: 'whatsapp' }) %> WhatsApp</a>
+            <button class="btn btn-sm btn-outline" type="button" data-copy-link><%- include('../partials/icons', { icon: 'external' }) %> Copiar link</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <% if (similar.length) { %>
+    <div class="section-head mt-lg">
+      <div><span class="section-eyebrow">Você também pode gostar</span><h2>Imóveis semelhantes</h2></div>
+    </div>
+    <div class="prop-grid">
+      <% for (const p of similar) { %><%- include('../partials/property-card', { p }) %><% } %>
+    </div>
+    <% } %>
+  </div>
+</section>
+
+<div class="lightbox" id="lightbox" hidden>
+  <button class="lightbox-close" type="button" aria-label="Fechar"><%- include('../partials/icons', { icon: 'close' }) %></button>
+  <button class="gallery-nav prev" type="button" data-dir="-1" aria-label="Anterior"><%- include('../partials/icons', { icon: 'chevron' }) %></button>
+  <img src="" alt="" id="lightboxImg">
+  <button class="gallery-nav next" type="button" data-dir="1" aria-label="Próxima"><%- include('../partials/icons', { icon: 'chevron' }) %></button>
+</div>
+
+<%- include('../partials/footer') %>

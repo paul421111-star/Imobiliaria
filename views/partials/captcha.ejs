@@ -1,0 +1,8 @@
+<div class="field captcha-field">
+  <label for="captcha-<%= scope %>">Código de verificação *</label>
+  <div class="captcha-row">
+    <img src="/captcha/<%= scope %>?t=<%= Date.now() %>" alt="Código de verificação" class="captcha-img" id="captcha-img-<%= scope %>" width="170" height="56">
+    <button type="button" class="captcha-refresh" data-captcha-refresh="<%= scope %>" aria-label="Gerar novo código" title="Gerar novo código"><%- include('icons', { icon: 'refresh' }) %></button>
+    <input id="captcha-<%= scope %>" name="captcha" type="text" required autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Digite o código" maxlength="8">
+  </div>
+</div>

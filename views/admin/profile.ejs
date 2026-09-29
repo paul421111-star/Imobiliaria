@@ -1,0 +1,35 @@
+<%- include('partials/top') %>
+
+<form method="post" action="/admin/perfil" class="settings-layout">
+  <div class="settings-main">
+    <section class="card card-pad">
+      <h2 class="card-title"><%- include('../partials/icons', { icon: 'user' }) %> Meus dados</h2>
+      <p class="text-muted">Esses dados aparecem para o cliente na página do imóvel (quando você é o corretor responsável) e na página "Sobre".</p>
+      <div class="form-grid-2">
+        <div class="field"><label for="name">Nome *</label><input id="name" name="name" type="text" required value="<%= user.name %>"></div>
+        <div class="field"><label>Usuário</label><input type="text" value="<%= user.username %>" disabled><small class="hint">Perfil: <%= user.role === 'admin' ? 'Administrador' : 'Corretor(a)' %></small></div>
+        <div class="field"><label for="email">E-mail</label><input id="email" name="email" type="email" value="<%= user.email || '' %>"></div>
+        <div class="field"><label for="creci">CRECI</label><input id="creci" name="creci" type="text" value="<%= user.creci || '' %>" placeholder="CRECI 000000-F"></div>
+        <div class="field"><label for="phone">Telefone</label><input id="phone" name="phone" type="text" value="<%= user.phone || '' %>"></div>
+        <div class="field"><label for="whatsapp">WhatsApp (55 + DDD + número)</label><input id="whatsapp" name="whatsapp" type="text" inputmode="numeric" value="<%= user.whatsapp || '' %>" placeholder="5511999999999"></div>
+      </div>
+    </section>
+
+    <section class="card card-pad">
+      <h2 class="card-title"><%- include('../partials/icons', { icon: 'key' }) %> Alterar senha</h2>
+      <p class="text-muted">Deixe em branco para manter a senha atual. Mínimo de 8 caracteres com letras e números.</p>
+      <div class="form-grid-3">
+        <div class="field"><label for="current_password">Senha atual</label><input id="current_password" name="current_password" type="password" autocomplete="current-password"></div>
+        <div class="field"><label for="new_password">Nova senha</label><input id="new_password" name="new_password" type="password" autocomplete="new-password" minlength="8"></div>
+        <div class="field"><label for="confirm_password">Confirmar nova senha</label><input id="confirm_password" name="confirm_password" type="password" autocomplete="new-password"></div>
+      </div>
+    </section>
+  </div>
+  <aside class="settings-side">
+    <div class="card card-pad sticky">
+      <button class="btn btn-accent btn-block btn-lg" type="submit"><%- include('../partials/icons', { icon: 'check' }) %> Salvar perfil</button>
+    </div>
+  </aside>
+</form>
+
+<%- include('partials/bottom') %>

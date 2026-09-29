@@ -1,0 +1,119 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<section class="page-hero">
+  <div class="container">
+    <nav class="breadcrumb"><a href="/">Início</a> <span>/</span> <span>Imóveis para alugar</span></nav>
+    <h1>Imóveis para alugar</h1>
+    <p><%= total %> <%= total === 1 ? 'imóvel encontrado' : 'imóveis encontrados' %><% if (query.cidade) { %> em <strong><%= query.cidade %></strong><% } %><% if (query.tipo) { %> · <strong><%= utils.typeLabel(query.tipo) %></strong><% } %></p>
+  </div>
+</section>
+
+<section class="section listing-section">
+  <div class="container listing-layout">
+    <aside class="filters" id="filters">
+      <form action="/imoveis" method="get" class="filters-form">
+        <div class="filters-head">
+          <h3><%- include('../partials/icons', { icon: 'filter' }) %> Filtros</h3>
+          <a href="/imoveis" class="link-muted">Limpar</a>
+        </div>
+        <div class="field">
+          <label for="f-busca">Buscar</label>
+          <input id="f-busca" type="text" name="busca" value="<%= query.busca || '' %>" placeholder="Bairro, rua, código...">
+        </div>
+        <div class="field">
+          <label for="f-tipo">Tipo de imóvel</label>
+          <select id="f-tipo" name="tipo">
+            <option value="">Todos</option>
+            <% for (const t of PROPERTY_TYPES) { %><option value="<%= t.value %>" <%= query.tipo === t.value ? 'selected' : '' %>><%= t.label %></option><% } %>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-cidade">Cidade</label>
+          <select id="f-cidade" name="cidade">
+            <option value="">Todas</option>
+            <% for (const c of filters.cities) { %><option value="<%= c.city %>" <%= query.cidade === c.city ? 'selected' : '' %>><%= c.city %> (<%= c.n %>)</option><% } %>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-bairro">Bairro</label>
+          <select id="f-bairro" name="bairro">
+            <option value="">Todos</option>
+            <% for (const b of filters.neighborhoods) { %><option value="<%= b %>" <%= query.bairro === b ? 'selected' : '' %>><%= b %></option><% } %>
+          </select>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="f-min">Aluguel mín.</label>
+            <input id="f-min" type="text" inputmode="numeric" name="min" value="<%= query.min || '' %>" placeholder="R$" data-money>
+          </div>
+          <div class="field">
+            <label for="f-max">Aluguel máx.</label>
+            <input id="f-max" type="text" inputmode="numeric" name="max" value="<%= query.max || '' %>" placeholder="R$" data-money>
+          </div>
+        </div>
+        <div class="field">
+          <label>Dormitórios</label>
+          <div class="chip-group">
+            <% for (const n of ['', '1', '2', '3', '4']) { %>
+            <label class="chip"><input type="radio" name="quartos" value="<%= n %>" <%= (query.quartos || '') === n ? 'checked' : '' %>><span><%= n === '' ? 'Todos' : n + '+' %></span></label>
+            <% } %>
+          </div>
+        </div>
+        <div class="field">
+          <label>Vagas de garagem</label>
+          <div class="chip-group">
+            <% for (const n of ['', '1', '2', '3']) { %>
+            <label class="chip"><input type="radio" name="vagas" value="<%= n %>" <%= (query.vagas || '') === n ? 'checked' : '' %>><span><%= n === '' ? 'Todas' : n + '+' %></span></label>
+            <% } %>
+          </div>
+        </div>
+        <div class="field">
+          <label class="check"><input type="checkbox" name="pets" value="1" <%= query.pets === '1' ? 'checked' : '' %>> <span>Aceita pets</span></label>
+          <label class="check"><input type="checkbox" name="mobiliado" value="1" <%= query.mobiliado === '1' ? 'checked' : '' %>> <span>Mobiliado</span></label>
+        </div>
+        <input type="hidden" name="ordem" value="<%= query.ordem || '' %>">
+        <button class="btn btn-primary btn-block" type="submit">Aplicar filtros</button>
+      </form>
+    </aside>
+
+    <div class="listing-main">
+      <div class="listing-toolbar">
+        <button class="btn btn-outline btn-sm filters-toggle" type="button" id="filtersToggle"><%- include('../partials/icons', { icon: 'filter' }) %> Filtros</button>
+        <form method="get" action="/imoveis" class="sort-form" id="sortForm">
+          <% for (const [k, v] of Object.entries(query)) { if (k !== 'ordem' && k !== 'pagina' && v !== '') { %><input type="hidden" name="<%= k %>" value="<%= v %>"><% } } %>
+          <label for="ordem">Ordenar por</label>
+          <select id="ordem" name="ordem" onchange="this.form.submit()">
+            <option value="" <%= !query.ordem ? 'selected' : '' %>>Relevância</option>
+            <option value="recentes" <%= query.ordem === 'recentes' ? 'selected' : '' %>>Mais recentes</option>
+            <option value="menor_preco" <%= query.ordem === 'menor_preco' ? 'selected' : '' %>>Menor preço</option>
+            <option value="maior_preco" <%= query.ordem === 'maior_preco' ? 'selected' : '' %>>Maior preço</option>
+            <option value="maior_area" <%= query.ordem === 'maior_area' ? 'selected' : '' %>>Maior área</option>
+          </select>
+        </form>
+      </div>
+
+      <% if (props.length === 0) { %>
+        <div class="empty-state">
+          <%- include('../partials/icons', { icon: 'search', size: 'xl' }) %>
+          <h3>Nenhum imóvel encontrado</h3>
+          <p>Tente ajustar os filtros ou <a href="/contato">fale com a gente</a> — avisamos quando surgir algo com o seu perfil.</p>
+          <a href="/imoveis" class="btn btn-primary">Ver todos os imóveis</a>
+        </div>
+      <% } else { %>
+        <div class="prop-grid">
+          <% for (const p of props) { %><%- include('../partials/property-card', { p }) %><% } %>
+        </div>
+        <% if (pages > 1) { %>
+        <nav class="pagination" aria-label="Paginação">
+          <% for (let i = 1; i <= pages; i++) { %>
+            <a href="/imoveis?<%= baseQuery %>&pagina=<%= i %>" class="<%= i === page ? 'active' : '' %>"><%= i %></a>
+          <% } %>
+        </nav>
+        <% } %>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

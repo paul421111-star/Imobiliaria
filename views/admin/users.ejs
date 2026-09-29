@@ -1,0 +1,70 @@
+<%- include('partials/top') %>
+
+<div class="settings-layout">
+  <div class="settings-main">
+    <section class="card table-wrap">
+      <table class="table">
+        <thead><tr><th>Usuário</th><th>Perfil</th><th>Contato</th><th>Imóveis</th><th>Atendimentos</th><th>Situação</th><th></th></tr></thead>
+        <tbody>
+          <% for (const u of users) { %>
+          <tr class="<%= u.active ? '' : 'row-muted' %>">
+            <td><div class="prop-cell"><span class="avatar"><%= u.name.charAt(0) %></span><div><strong><%= u.name %></strong><br><small class="text-muted">@<%= u.username %><%= u.creci ? ' · ' + u.creci : '' %></small></div></div></td>
+            <td>
+              <form method="post" action="/admin/usuarios/<%= u.id %>" class="inline-form">
+                <input type="hidden" name="action" value="role">
+                <select name="role" onchange="this.form.submit()" <%= u.id === user.id ? 'disabled' : '' %>>
+                  <option value="corretor" <%= u.role === 'corretor' ? 'selected' : '' %>>Corretor(a)</option>
+                  <option value="admin" <%= u.role === 'admin' ? 'selected' : '' %>>Administrador</option>
+                </select>
+              </form>
+            </td>
+            <td><small><%= u.email || '—' %><br><%= u.whatsapp ? utils.formatPhone(u.whatsapp.replace(/^55/, '')) : (u.phone || '—') %></small></td>
+            <td><%= u.property_count %></td>
+            <td><%= u.lead_count %></td>
+            <td><span class="badge <%= u.active ? 'badge-success' : 'badge-muted' %>"><%= u.active ? 'Ativo' : 'Inativo' %></span></td>
+            <td class="text-right nowrap">
+              <button class="btn btn-sm btn-outline" type="button" data-open-modal="pw-<%= u.id %>" title="Redefinir senha"><%- include('../partials/icons', { icon: 'key' }) %></button>
+              <% if (u.id !== user.id) { %>
+              <form method="post" action="/admin/usuarios/<%= u.id %>" class="inline-form"><input type="hidden" name="action" value="toggle"><button class="btn btn-sm btn-outline" type="submit" title="<%= u.active ? 'Desativar' : 'Reativar' %>"><%= u.active ? 'Desativar' : 'Reativar' %></button></form>
+              <form method="post" action="/admin/usuarios/<%= u.id %>" class="inline-form" data-confirm="Excluir o usuário <%= u.username %>? Imóveis e atendimentos dele ficarão sem corretor atribuído."><input type="hidden" name="action" value="delete"><button class="btn btn-sm btn-danger" type="submit" title="Excluir"><%- include('../partials/icons', { icon: 'trash' }) %></button></form>
+              <% } %>
+            </td>
+          </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </section>
+
+    <% for (const u of users) { %>
+    <div class="modal" id="modal-pw-<%= u.id %>" hidden>
+      <div class="modal-box card card-pad">
+        <h3 class="card-title">Redefinir senha de <%= u.name %></h3>
+        <form method="post" action="/admin/usuarios/<%= u.id %>">
+          <input type="hidden" name="action" value="reset_password">
+          <div class="field"><label>Nova senha</label><input type="password" name="password" required minlength="8" autocomplete="new-password"><small class="hint">Mínimo 8 caracteres com letras e números.</small></div>
+          <div class="form-actions compact"><button class="btn btn-primary" type="submit">Salvar</button><button class="btn btn-ghost" type="button" data-close-modal>Cancelar</button></div>
+        </form>
+      </div>
+    </div>
+    <% } %>
+  </div>
+
+  <aside class="settings-side">
+    <section class="card card-pad">
+      <h3 class="card-title"><%- include('../partials/icons', { icon: 'plus' }) %> Novo usuário</h3>
+      <form method="post" action="/admin/usuarios">
+        <div class="field"><label for="n-name">Nome *</label><input id="n-name" name="name" type="text" required></div>
+        <div class="field"><label for="n-username">Usuário (login) *</label><input id="n-username" name="username" type="text" required pattern="[A-Za-z0-9._-]{3,30}" autocomplete="off"></div>
+        <div class="field"><label for="n-password">Senha *</label><input id="n-password" name="password" type="password" required minlength="8" autocomplete="new-password"></div>
+        <div class="field"><label for="n-role">Perfil</label><select id="n-role" name="role"><option value="corretor">Corretor(a)</option><option value="admin">Administrador</option></select>
+          <small class="hint">Corretor: imóveis, solicitações, chat e configurações do site. Admin: tudo isso + usuários e exclusões.</small></div>
+        <div class="field"><label for="n-email">E-mail</label><input id="n-email" name="email" type="email"></div>
+        <div class="field"><label for="n-whatsapp">WhatsApp</label><input id="n-whatsapp" name="whatsapp" type="text" placeholder="5511999999999"></div>
+        <div class="field"><label for="n-creci">CRECI</label><input id="n-creci" name="creci" type="text"></div>
+        <button class="btn btn-accent btn-block" type="submit">Criar usuário</button>
+      </form>
+    </section>
+  </aside>
+</div>
+
+<%- include('partials/bottom') %>

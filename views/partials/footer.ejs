@@ -1,0 +1,60 @@
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <a href="/" class="brand brand-light">
+        <span class="brand-mark"><%- include('icons', { icon: 'home' }) %></span>
+        <span class="brand-text"><%= settings.site_name %></span>
+      </a>
+      <p><%= settings.about %></p>
+      <div class="social-links">
+        <% const socials = [['instagram','Instagram'],['facebook','Facebook'],['tiktok','TikTok'],['youtube','YouTube'],['linkedin','LinkedIn']]; %>
+        <% for (const [key, label] of socials) { if (settings[key]) { %>
+          <a href="<%= settings[key] %>" target="_blank" rel="noopener" aria-label="<%= label %>" title="<%= label %>"><%- include('icons', { icon: key }) %></a>
+        <% } } %>
+        <a href="<%= utils.whatsappLink(settings.whatsapp, settings.whatsapp_message) %>" target="_blank" rel="noopener" aria-label="WhatsApp" title="WhatsApp"><%- include('icons', { icon: 'whatsapp' }) %></a>
+      </div>
+    </div>
+    <div>
+      <h4>Navegação</h4>
+      <ul>
+        <li><a href="/imoveis">Todos os imóveis</a></li>
+        <li><a href="/imoveis?tipo=apartamento">Apartamentos</a></li>
+        <li><a href="/imoveis?tipo=casa">Casas</a></li>
+        <li><a href="/imoveis?tipo=comercial">Comercial</a></li>
+        <li><a href="/acompanhar">Acompanhar solicitação</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Institucional</h4>
+      <ul>
+        <li><a href="/sobre">Sobre nós</a></li>
+        <li><a href="/contato">Fale conosco</a></li>
+        <li><a href="/sobre#requisitos">Requisitos para alugar</a></li>
+        <li><a href="/admin/login" rel="nofollow">Área do corretor</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Contato</h4>
+      <ul class="contact-list">
+        <% if (settings.phone) { %><li><%- include('icons', { icon: 'phone' }) %> <a href="tel:<%= settings.phone.replace(/\D/g,'') %>"><%= settings.phone %></a></li><% } %>
+        <% if (settings.whatsapp) { %><li><%- include('icons', { icon: 'whatsapp' }) %> <a href="<%= utils.whatsappLink(settings.whatsapp, settings.whatsapp_message) %>" target="_blank" rel="noopener"><%= utils.formatPhone(settings.whatsapp.replace(/^55/, '')) %></a></li><% } %>
+        <% if (settings.email) { %><li><%- include('icons', { icon: 'mail' }) %> <a href="mailto:<%= settings.email %>"><%= settings.email %></a></li><% } %>
+        <% if (settings.address) { %><li><%- include('icons', { icon: 'pin' }) %> <span><%= settings.address %></span></li><% } %>
+        <% if (settings.business_hours) { %><li><%- include('icons', { icon: 'clock' }) %> <span><%= settings.business_hours %></span></li><% } %>
+      </ul>
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <span>© <%= new Date().getFullYear() %> <%= settings.site_name %>. <%= settings.footer_text %></span>
+  </div>
+</footer>
+
+<a class="whatsapp-float" href="<%= utils.whatsappLink(settings.whatsapp, settings.whatsapp_message) %>" target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
+  <%- include('icons', { icon: 'whatsapp' }) %>
+  <span>Fale conosco</span>
+</a>
+
+<script src="/static/js/site.js" defer></script>
+<% if (typeof extraScripts !== 'undefined') { %><%- extraScripts %><% } %>
+</body>
+</html>

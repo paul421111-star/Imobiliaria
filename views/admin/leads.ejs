@@ -1,0 +1,43 @@
+<%- include('partials/top') %>
+
+<div class="tabs">
+  <a href="/admin/solicitacoes" class="<%= !query.status ? 'active' : '' %>">Todas <span><%= counts.reduce((a, b) => a + b.n, 0) %></span></a>
+  <a href="/admin/solicitacoes?status=abertas" class="<%= query.status === 'abertas' ? 'active' : '' %>">Em andamento <span><%= counts.filter(c => !LEAD_STATUS[c.status]?.closed).reduce((a, b) => a + b.n, 0) %></span></a>
+  <% for (const [k, s] of Object.entries(LEAD_STATUS)) { const n = (counts.find(c => c.status === k) || { n: 0 }).n; %>
+    <a href="/admin/solicitacoes?status=<%= k %>" class="<%= query.status === k ? 'active' : '' %>"><%= s.label %> <span><%= n %></span></a>
+  <% } %>
+</div>
+
+<div class="toolbar">
+  <form method="get" action="/admin/solicitacoes" class="toolbar-form">
+    <% if (query.status) { %><input type="hidden" name="status" value="<%= query.status %>"><% } %>
+    <input type="text" name="busca" value="<%= query.busca || '' %>" placeholder="Buscar por nome, e-mail, telefone, protocolo..." class="toolbar-search">
+    <label class="check"><input type="checkbox" name="minhas" value="1" <%= query.minhas === '1' ? 'checked' : '' %> onchange="this.form.submit()"> <span>Só as minhas</span></label>
+    <button class="btn btn-outline" type="submit"><%- include('../partials/icons', { icon: 'search' }) %></button>
+  </form>
+</div>
+
+<% if (leads.length === 0) { %>
+  <div class="empty-state"><h3>Nenhuma solicitação</h3><p>Quando um cliente enviar interesse em um imóvel, ela aparecerá aqui.</p></div>
+<% } else { %>
+<div class="card table-wrap">
+  <table class="table">
+    <thead><tr><th>Protocolo</th><th>Cliente</th><th>Imóvel</th><th>Status</th><th>Corretor</th><th>Atualizada</th><th></th></tr></thead>
+    <tbody>
+      <% for (const l of leads) { const st = utils.leadStatus(l.status); %>
+      <tr class="<%= l.unread > 0 ? 'row-unread' : '' %>">
+        <td><code><%= l.protocol %></code></td>
+        <td><a href="/admin/solicitacoes/<%= l.id %>" class="strong"><%= l.name %></a><br><small class="text-muted"><%= utils.formatPhone(l.phone) %> · <%= l.email %></small></td>
+        <td><% if (l.property_code) { %><a href="/imovel/<%= l.property_code %>" target="_blank" rel="noopener"><%= l.property_code %></a> <small class="text-muted"><%= utils.truncate(l.property_title, 28) %></small><% } else { %><span class="text-muted">Contato geral</span><% } %></td>
+        <td><span class="badge badge-status status-<%= l.status %>"><%= st.label %></span></td>
+        <td><%= l.broker_name || '—' %></td>
+        <td><small><%= utils.formatDateTime(l.updated_at) %></small></td>
+        <td class="text-right nowrap"><% if (l.unread > 0) { %><span class="unread-pill" title="Mensagens não lidas"><%- include('../partials/icons', { icon: 'chat' }) %> <%= l.unread %></span> <% } %><a href="/admin/solicitacoes/<%= l.id %>" class="btn btn-sm btn-outline">Abrir</a></td>
+      </tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+<% } %>
+
+<%- include('partials/bottom') %>

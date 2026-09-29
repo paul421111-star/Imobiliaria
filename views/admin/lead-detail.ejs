@@ -1,0 +1,139 @@
+<%- include('partials/top') %>
+<% const st = utils.leadStatus(lead.status); const closed = !!st.closed; %>
+
+<div class="page-actions">
+  <a href="/admin/solicitacoes" class="link-muted"><%- include('../partials/icons', { icon: 'arrow' }) %> Voltar para solicitações</a>
+  <div class="page-actions-right">
+    <span class="badge badge-status badge-lg status-<%= lead.status %>" id="leadStatusLabel"><%= st.label %></span>
+  </div>
+</div>
+
+<div class="lead-layout">
+  <div class="lead-main">
+    <section class="card card-pad">
+      <div class="lead-header">
+        <span class="avatar avatar-lg"><%= lead.name.charAt(0) %></span>
+        <div>
+          <h2><%= lead.name %></h2>
+          <div class="lead-contacts">
+            <a href="mailto:<%= lead.email %>"><%- include('../partials/icons', { icon: 'mail' }) %> <%= lead.email %></a>
+            <a href="tel:<%= lead.phone %>"><%- include('../partials/icons', { icon: 'phone' }) %> <%= utils.formatPhone(lead.phone) %></a>
+            <a href="<%= utils.whatsappLink('55' + lead.phone, `Olá ${lead.name.split(' ')[0]}, aqui é ${user.name} da ${settings.site_name}, sobre a sua solicitação ${lead.protocol}.`) %>" target="_blank" rel="noopener" class="btn btn-whatsapp btn-sm"><%- include('../partials/icons', { icon: 'whatsapp' }) %> WhatsApp</a>
+          </div>
+        </div>
+      </div>
+      <dl class="dl mt-md">
+        <div><dt>Protocolo</dt><dd><code><%= lead.protocol %></code></dd></div>
+        <div><dt>Recebida em</dt><dd><%= utils.formatDateTime(lead.created_at) %></dd></div>
+        <div><dt>Imóvel</dt><dd><% if (lead.property_code) { %><a href="/admin/imoveis/<%= lead.property_id %>/editar"><%= lead.property_code %> · <%= lead.property_title %></a><br><small class="text-muted"><%= utils.money(lead.property_price) %>/mês · <%= utils.propStatus(lead.property_status).label %></small><% } else { %>Contato geral (sem imóvel)<% } %></dd></div>
+        <div><dt>Corretor responsável</dt><dd>
+          <form method="post" action="/admin/solicitacoes/<%= lead.id %>/atribuir" class="inline-form">
+            <select name="broker_id" onchange="this.form.submit()">
+              <option value="">— Não atribuído —</option>
+              <% for (const b of brokers) { %><option value="<%= b.id %>" <%= lead.broker_id === b.id ? 'selected' : '' %>><%= b.name %></option><% } %>
+            </select>
+          </form>
+        </dd></div>
+        <% if (lead.visit_at) { %><div><dt>Visita</dt><dd><%- include('../partials/icons', { icon: 'calendar' }) %> <%= utils.formatDateTime(lead.visit_at) %></dd></div><% } %>
+        <% if (lead.message) { %><div class="full"><dt>Mensagem inicial</dt><dd class="quote"><%= lead.message %></dd></div><% } %>
+      </dl>
+    </section>
+
+    <section class="card card-pad">
+      <h2 class="card-title"><%- include('../partials/icons', { icon: 'refresh' }) %> Atualizar andamento</h2>
+      <form method="post" action="/admin/solicitacoes/<%= lead.id %>/status" class="status-form" id="statusForm">
+        <div class="form-grid-2">
+          <div class="field">
+            <label for="status">Novo status</label>
+            <select id="status" name="status">
+              <% for (const [k, s] of Object.entries(LEAD_STATUS)) { %><option value="<%= k %>" <%= lead.status === k ? 'selected' : '' %>><%= s.label %></option><% } %>
+            </select>
+          </div>
+          <div class="field" id="visitField" <%= lead.status === 'visita_agendada' ? '' : 'hidden' %>>
+            <label for="visit_at">Data e hora da visita</label>
+            <input id="visit_at" name="visit_at" type="datetime-local" value="<%= lead.visit_at ? lead.visit_at.replace(' ', 'T').slice(0, 16) : '' %>">
+          </div>
+        </div>
+        <div class="field">
+          <label for="note">Observação (histórico)</label>
+          <textarea id="note" name="note" rows="2" placeholder="Ex.: Cliente confirmou visita por telefone; motivo da recusa..."></textarea>
+        </div>
+        <label class="check"><input type="checkbox" name="share_note" value="1"> <span>Enviar a observação para o cliente no chat</span></label>
+        <div class="status-hints">
+          <small class="hint"><strong>Regras:</strong> "Visita agendada" exige data futura · "Não aprovado"/"Cancelada" exigem motivo · "Aprovado" reserva o imóvel · "Contrato assinado" marca o imóvel como alugado e encerra as demais solicitações do imóvel<% if (user.role !== 'admin') { %> · solicitações encerradas só são reabertas pelo administrador<% } %>.</small>
+        </div>
+        <button class="btn btn-primary" type="submit"><%- include('../partials/icons', { icon: 'check' }) %> Salvar andamento</button>
+      </form>
+    </section>
+
+    <section class="card card-pad">
+      <h2 class="card-title"><%- include('../partials/icons', { icon: 'clock' }) %> Histórico</h2>
+      <ul class="timeline">
+        <% for (const h of history) { %>
+        <li><span class="timeline-dot"></span><div><strong><%= utils.leadStatus(h.status).label %></strong><% if (h.note) { %><p><%= h.note %></p><% } %><time><%= utils.formatDateTime(h.created_at) %><% if (h.user_name) { %> · <%= h.user_name %><% } %></time></div></li>
+        <% } %>
+      </ul>
+    </section>
+
+    <section class="card card-pad">
+      <h2 class="card-title"><%- include('../partials/icons', { icon: 'file' }) %> Anotações internas <small class="text-muted">(o cliente não vê)</small></h2>
+      <form method="post" action="/admin/solicitacoes/<%= lead.id %>/notas">
+        <textarea name="internal_notes" rows="4" placeholder="Renda informada, documentos recebidos, preferências..."><%= lead.internal_notes || '' %></textarea>
+        <div class="form-actions compact"><button class="btn btn-outline btn-sm" type="submit">Salvar anotações</button></div>
+      </form>
+    </section>
+
+    <% if (otherLeads.length) { %>
+    <section class="card card-pad">
+      <h2 class="card-title">Outras solicitações deste cliente</h2>
+      <ul class="simple-list">
+        <% for (const o of otherLeads) { %><li><a href="/admin/solicitacoes/<%= o.id %>"><%= o.protocol %><%= o.property_code ? ' · ' + o.property_code : '' %></a><span class="badge badge-status status-<%= o.status %>"><%= utils.leadStatus(o.status).label %></span></li><% } %>
+      </ul>
+    </section>
+    <% } %>
+
+    <% if (user.role === 'admin') { %>
+    <section class="card card-pad danger-zone">
+      <form method="post" action="/admin/solicitacoes/<%= lead.id %>/excluir" data-confirm="Excluir definitivamente esta solicitação e todo o chat?">
+        <button class="btn btn-danger btn-sm" type="submit"><%- include('../partials/icons', { icon: 'trash' }) %> Excluir solicitação</button>
+      </form>
+    </section>
+    <% } %>
+  </div>
+
+  <aside class="lead-side">
+    <div class="card chat-card admin-chat" id="chat" data-endpoint="/admin/api/chat/<%= lead.id %>/messages" data-self="corretor" data-closed="<%= closed ? '1' : '0' %>" data-client-name="<%= lead.name %>">
+      <div class="chat-head">
+        <div class="broker-box">
+          <span class="avatar"><%= lead.name.charAt(0) %></span>
+          <div><strong><%= lead.name %></strong><span>Chat com o cliente · atualiza automaticamente</span></div>
+        </div>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <% for (const m of messages) { %>
+          <div class="msg msg-<%= m.sender %><%= m.sender === 'corretor' ? ' msg-self' : '' %>" data-id="<%= m.id %>">
+            <% if (m.sender === 'corretor') { %><span class="msg-author"><%= m.user_name || 'Corretor' %></span><% } %>
+            <% if (m.sender === 'cliente') { %><span class="msg-author"><%= lead.name %></span><% } %>
+            <p><%= m.body %></p>
+            <time><%= utils.formatDateTime(m.created_at) %></time>
+          </div>
+        <% } %>
+      </div>
+      <% if (closed) { %>
+        <div class="chat-closed"><%- include('../partials/icons', { icon: 'info' }) %> Solicitação encerrada. Reabra alterando o status para enviar mensagens.</div>
+      <% } else { %>
+      <div class="quick-replies">
+        <button type="button" data-quick="Olá <%= lead.name.split(' ')[0] %>! Tudo bem? Sou <%= user.name %>, corretor(a) responsável. Podemos agendar uma visita?">Agendar visita</button>
+        <button type="button" data-quick="Para dar andamento, preciso dos documentos: RG, CPF, comprovante de renda (3 últimos) e comprovante de residência. Pode me enviar por aqui ou WhatsApp?">Pedir documentos</button>
+        <button type="button" data-quick="O imóvel continua disponível! Qual seria o melhor dia e horário para você visitar?">Disponível</button>
+      </div>
+      <form class="chat-form" id="chatForm">
+        <textarea id="chatInput" rows="1" maxlength="2000" placeholder="Responder ao cliente... (Enter envia, Shift+Enter quebra linha)" required></textarea>
+        <button class="btn btn-primary" type="submit" aria-label="Enviar"><%- include('../partials/icons', { icon: 'send' }) %></button>
+      </form>
+      <% } %>
+    </div>
+  </aside>
+</div>
+
+<%- include('partials/bottom', { extraScripts: '<script src="/static/js/chat.js" defer></script>' }) %>

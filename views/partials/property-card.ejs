@@ -1,0 +1,34 @@
+<article class="prop-card">
+  <a href="<%= p.url %>" class="prop-card-media">
+    <% if (p.cover) { %>
+      <img src="<%= p.cover %>" alt="<%= p.title %>" loading="lazy">
+    <% } else { %>
+      <div class="prop-card-noimg"><%- include('icons', { icon: 'image' }) %></div>
+    <% } %>
+    <div class="prop-card-badges">
+      <span class="badge badge-dark"><%= utils.typeLabel(p.type) %></span>
+      <% if (p.featured) { %><span class="badge badge-accent"><%- include('icons', { icon: 'star' }) %> Destaque</span><% } %>
+    </div>
+    <% if (p.image_count > 1) { %><span class="prop-card-count"><%- include('icons', { icon: 'image' }) %> <%= p.image_count %></span><% } %>
+  </a>
+  <div class="prop-card-body">
+    <div class="prop-card-price">
+      <strong><%= utils.money(p.price) %></strong><span>/mês</span>
+      <% if (p.condo_fee || p.iptu) { %><small>Total aprox. <%= utils.money(p.total) %></small><% } %>
+    </div>
+    <h3 class="prop-card-title"><a href="<%= p.url %>"><%= p.title %></a></h3>
+    <p class="prop-card-location"><%- include('icons', { icon: 'pin' }) %> <%= [p.neighborhood, p.city].filter(Boolean).join(', ') %> - <%= p.state %></p>
+    <ul class="prop-specs">
+      <% if (p.area) { %><li title="Área"><%- include('icons', { icon: 'area' }) %> <%= p.area %> m²</li><% } %>
+      <% if (p.bedrooms) { %><li title="Dormitórios"><%- include('icons', { icon: 'bed' }) %> <%= p.bedrooms %></li><% } %>
+      <% if (p.bathrooms) { %><li title="Banheiros"><%- include('icons', { icon: 'bath' }) %> <%= p.bathrooms %></li><% } %>
+      <% if (p.parking) { %><li title="Vagas"><%- include('icons', { icon: 'car' }) %> <%= p.parking %></li><% } %>
+      <% if (p.pets_allowed) { %><li title="Aceita pets"><%- include('icons', { icon: 'paw' }) %></li><% } %>
+      <% if (p.furnished) { %><li title="Mobiliado"><%- include('icons', { icon: 'sofa' }) %></li><% } %>
+    </ul>
+  </div>
+  <div class="prop-card-footer">
+    <span class="prop-code">Cód. <%= p.code %></span>
+    <a href="<%= p.url %>" class="link-arrow">Ver detalhes <%- include('icons', { icon: 'arrow' }) %></a>
+  </div>
+</article>
