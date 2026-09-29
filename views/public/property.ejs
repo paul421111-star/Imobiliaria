@@ -173,7 +173,7 @@
       <div><span class="section-eyebrow">Você também pode gostar</span><h2>Imóveis semelhantes</h2></div>
     </div>
     <div class="prop-grid">
-      <% for (const p of similar) { %><%- include('../partials/property-card', { p }) %><% } %>
+      <% similar.forEach((p, i) => { %><div class="reveal" style="--d:<%= i %>"><%- include('../partials/property-card', { p }) %></div><% }) %>
     </div>
     <% } %>
   </div>
@@ -186,4 +186,4 @@
   <button class="gallery-nav next" type="button" data-dir="1" aria-label="Próxima"><%- include('../partials/icons', { icon: 'chevron' }) %></button>
 </div>
 
-<%- include('../partials/footer') %>
+<%- include('../partials/footer', { waPrefill: `Olá! Tenho interesse no imóvel "${prop.title}" (cód. ${prop.code}). Pode me passar mais informações?` }) %>

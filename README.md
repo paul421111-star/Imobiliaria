@@ -1,4 +1,4 @@
-# Prime Imóveis — site e painel de aluguel de imóveis
+# Mariele Corretora — site e painel de aluguel de imóveis
 
 Site público para divulgação de imóveis para aluguel (casas, apartamentos, kitnets, coberturas e salas comerciais) com painel administrativo para corretor e administrador, chat entre cliente e corretor, acompanhamento de solicitação por e-mail + celular e captcha nos formulários e no login.
 
@@ -49,11 +49,15 @@ Para desenvolvimento com reinício automático: `npm run dev`.
 ## Funcionalidades
 
 ### Site público
-- Home com busca, destaques, categorias e "como funciona".
+- Identidade visual "Mariele Corretora" (azul-marinho + dourado) com a logo em `public/img/` (`logo.png`, `logo-light.png`, `logo-mark.png`, `favicon.png`).
+- Home com slideshow de fotos no hero (efeito Ken Burns), busca com abas (filtros / código do imóvel), contadores animados, carrossel de destaques com autoplay, categorias, "como funciona", selos de confiança e CTA.
+- Efeitos: barra de progresso de leitura, cabeçalho que encolhe ao rolar, animações de entrada ao rolar, cards com inclinação 3D, brilho e faixa dourada "Destaque", botão "voltar ao topo".
+- Widget de WhatsApp estilo chat (mensagem editável, pré-preenchida com o imóvel visitado) e aviso de cookies (LGPD).
 - Listagem com filtros (tipo, cidade, bairro, faixa de preço, quartos, vagas, pets, mobiliado) e ordenação.
-- Página do imóvel com galeria, características, valores (aluguel, condomínio, IPTU), mapa de comodidades e formulário **"Tenho interesse"** com captcha.
-- Redes sociais (Instagram, Facebook, TikTok, YouTube, LinkedIn) e botão flutuante do WhatsApp, configuráveis no painel.
+- Página do imóvel com galeria (lightbox com swipe), características, valores (aluguel, condomínio, IPTU), mapa de comodidades e formulário **"Tenho interesse"** com captcha.
+- Redes sociais (Instagram, Facebook, TikTok, YouTube, LinkedIn) e WhatsApp, configuráveis no painel.
 - Página de contato com captcha e página "Sobre".
+- Respeita `prefers-reduced-motion` (animações desativadas para quem preferir).
 
 ### Acompanhamento do cliente (sem login)
 - Em **Acompanhar solicitação** o cliente informa e-mail + celular + captcha e vê todas as suas solicitações.

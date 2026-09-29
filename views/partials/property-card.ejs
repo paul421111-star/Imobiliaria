@@ -1,15 +1,18 @@
-<article class="prop-card">
+<article class="prop-card <%= p.featured ? 'is-featured' : '' %>" data-tilt>
   <a href="<%= p.url %>" class="prop-card-media">
     <% if (p.cover) { %>
       <img src="<%= p.cover %>" alt="<%= p.title %>" loading="lazy">
     <% } else { %>
       <div class="prop-card-noimg"><%- include('icons', { icon: 'image' }) %></div>
     <% } %>
+    <span class="prop-card-shine" aria-hidden="true"></span>
     <div class="prop-card-badges">
       <span class="badge badge-dark"><%= utils.typeLabel(p.type) %></span>
-      <% if (p.featured) { %><span class="badge badge-accent"><%- include('icons', { icon: 'star' }) %> Destaque</span><% } %>
+      <span class="badge badge-glass">Aluguel</span>
     </div>
+    <% if (p.featured) { %><span class="ribbon"><%- include('icons', { icon: 'star' }) %> Destaque</span><% } %>
     <% if (p.image_count > 1) { %><span class="prop-card-count"><%- include('icons', { icon: 'image' }) %> <%= p.image_count %></span><% } %>
+    <span class="prop-card-cta"><%- include('icons', { icon: 'eye' }) %> Ver imóvel</span>
   </a>
   <div class="prop-card-body">
     <div class="prop-card-price">

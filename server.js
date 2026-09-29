@@ -31,7 +31,9 @@ app.use(
   })
 );
 
-app.use('/static', express.static(path.join(__dirname, 'public'), { maxAge: '1h' }));
+const IS_PROD = process.env.NODE_ENV === 'production';
+app.use('/static', express.static(path.join(__dirname, 'public'), { maxAge: IS_PROD ? '7d' : 0 }));
+const ASSET_VERSION = String(Date.now()).slice(-8); // muda a cada reinício: força o navegador a baixar CSS/JS novos
 app.use('/uploads', express.static(UPLOADS_DIR, { maxAge: '7d' }));
 
 // Variáveis disponíveis em todas as views
@@ -39,6 +41,7 @@ app.use((req, res, next) => {
   res.locals.settings = getSettings();
   res.locals.user = currentUser(req);
   res.locals.utils = utils;
+  res.locals.v = ASSET_VERSION;
   res.locals.LEAD_STATUS = LEAD_STATUS;
   res.locals.PROPERTY_TYPES = PROPERTY_TYPES;
   res.locals.PROPERTY_STATUS = PROPERTY_STATUS;

@@ -157,14 +157,14 @@ const FEATURE_OPTIONS = [
 ];
 
 const DEFAULT_SETTINGS = {
-  site_name: 'Prime Imóveis',
+  site_name: 'Mariele Corretora',
   site_tagline: 'Alugue com segurança, more com tranquilidade.',
   hero_title: 'Encontre o imóvel perfeito para alugar',
   hero_subtitle: 'Casas, apartamentos e salas comerciais com atendimento personalizado e sem burocracia.',
   phone: '(11) 4002-8922',
   whatsapp: '5511999999999',
-  whatsapp_message: 'Olá! Vi um imóvel no site e gostaria de mais informações.',
-  email: 'contato@primeimoveis.com.br',
+  whatsapp_message: 'Olá, Mariele! Vi um imóvel no site e gostaria de mais informações.',
+  email: 'contato@marielecorretora.com.br',
   address: 'Av. Paulista, 1000 - Bela Vista, São Paulo - SP',
   business_hours: 'Seg a Sex 9h às 18h · Sáb 9h às 13h',
   instagram: 'https://instagram.com/',
@@ -172,7 +172,7 @@ const DEFAULT_SETTINGS = {
   tiktok: '',
   youtube: '',
   linkedin: '',
-  about: 'Somos uma imobiliária especializada em locação residencial e comercial. Nosso compromisso é conectar pessoas a lares com transparência, agilidade e atendimento humano do início ao fim.',
+  about: 'A Mariele Corretora é especializada em locação residencial e comercial. Nosso compromisso é conectar pessoas a lares com transparência, agilidade e atendimento humano do início ao fim.',
   rental_requirements: 'Renda mínima comprovada de 3x o valor do aluguel (somando aluguel + condomínio + IPTU).\nDocumentos: RG, CPF, comprovante de residência e comprovante de renda dos últimos 3 meses.\nGarantias aceitas: fiador, seguro-fiança, caução (até 3 meses) ou título de capitalização.\nContrato mínimo de 12 meses (salvo indicação no anúncio).',
   footer_text: 'CRECI 00000-J · Todos os direitos reservados.',
 };
@@ -232,9 +232,19 @@ function seed() {
   const userCount = db.prepare('SELECT COUNT(*) AS c FROM users').get().c;
   if (userCount === 0) {
     const ins = db.prepare('INSERT INTO users(name, username, password_hash, role, email, phone, whatsapp, creci) VALUES (?,?,?,?,?,?,?,?)');
-    ins.run('Paulo', 'Paulo', bcrypt.hashSync('Abcd1234', 10), 'admin', 'paulo@primeimoveis.com.br', '(11) 99999-0001', '5511999990001', '');
-    ins.run('Mariele', 'Mariele', bcrypt.hashSync('Abcd1234', 10), 'corretor', 'mariele@primeimoveis.com.br', '(11) 99999-0002', '5511999990002', 'CRECI 123456-F');
+    ins.run('Paulo', 'Paulo', bcrypt.hashSync('Abcd1234', 10), 'admin', 'paulo@marielecorretora.com.br', '(11) 99999-0001', '5511999990001', '');
+    ins.run('Mariele', 'Mariele', bcrypt.hashSync('Abcd1234', 10), 'corretor', 'mariele@marielecorretora.com.br', '(11) 99999-0002', '5511999990002', 'CRECI 123456-F');
   }
+
+  // Bancos criados antes da troca de marca: migra os textos padrão antigos.
+  const legacy = {
+    site_name: ['Prime Imóveis', DEFAULT_SETTINGS.site_name],
+    email: ['contato@primeimoveis.com.br', DEFAULT_SETTINGS.email],
+    whatsapp_message: ['Olá! Vi um imóvel no site e gostaria de mais informações.', DEFAULT_SETTINGS.whatsapp_message],
+    about: ['Somos uma imobiliária especializada em locação residencial e comercial. Nosso compromisso é conectar pessoas a lares com transparência, agilidade e atendimento humano do início ao fim.', DEFAULT_SETTINGS.about],
+  };
+  const upd = db.prepare('UPDATE settings SET value = ? WHERE key = ? AND value = ?');
+  for (const [key, [oldValue, newValue]] of Object.entries(legacy)) upd.run(newValue, key, oldValue);
 
   const propCount = db.prepare('SELECT COUNT(*) AS c FROM properties').get().c;
   if (propCount === 0) {

@@ -1,97 +1,137 @@
-<%- include('../partials/head') %>
+<%- include('../partials/head', { bodyClass: 'home' }) %>
 <%- include('../partials/header', { headerTransparent: true }) %>
+<%
+  const seen = new Set();
+  const heroSlides = [...featured, ...latest]
+    .map((p) => p.cover)
+    .filter((c) => c && !/\.svg$/i.test(c) && !seen.has(c) && seen.add(c))
+    .slice(0, 5);
+%>
 
-<section class="hero">
-  <div class="hero-bg"></div>
+<section class="hero <%= heroSlides.length ? 'has-slides' : '' %>">
+  <div class="hero-bg">
+    <% heroSlides.forEach((src, i) => { %><div class="hero-slide <%= i === 0 ? 'active' : '' %>" style="background-image:url('<%= src %>')"></div><% }) %>
+    <div class="hero-aurora" aria-hidden="true"><span></span><span></span><span></span></div>
+    <div class="hero-grid" aria-hidden="true"></div>
+  </div>
   <div class="container hero-content">
-    <span class="hero-eyebrow"><%- include('../partials/icons', { icon: 'shield' }) %> Atendimento personalizado e sem burocracia</span>
-    <h1><%= settings.hero_title %></h1>
-    <p><%= settings.hero_subtitle %></p>
+    <span class="hero-eyebrow reveal" style="--d:0"><%- include('../partials/icons', { icon: 'shield' }) %> Atendimento personalizado e sem burocracia</span>
+    <h1 class="reveal" style="--d:1"><%- utils.escapeHtml(settings.hero_title).replace(/(perfeito|ideal|lar|imóvel)/i, '<em>$1</em>') %></h1>
+    <p class="reveal" style="--d:2"><%= settings.hero_subtitle %></p>
 
-    <form class="search-box" action="/imoveis" method="get">
-      <div class="search-field">
-        <label for="s-tipo">Tipo</label>
-        <select id="s-tipo" name="tipo">
-          <option value="">Todos os tipos</option>
-          <% for (const t of types) { %><option value="<%= t.value %>"><%= t.label %></option><% } %>
-        </select>
+    <div class="search-wrap reveal" style="--d:3">
+      <div class="search-tabs" role="tablist">
+        <button type="button" class="active" data-search-tab="filters" role="tab" aria-selected="true"><%- include('../partials/icons', { icon: 'key' }) %> Alugar</button>
+        <button type="button" data-search-tab="code" role="tab" aria-selected="false"><%- include('../partials/icons', { icon: 'tag' }) %> Buscar por código</button>
       </div>
-      <div class="search-field">
-        <label for="s-cidade">Cidade</label>
-        <select id="s-cidade" name="cidade">
-          <option value="">Todas as cidades</option>
-          <% for (const c of filters.cities) { %><option value="<%= c.city %>"><%= c.city %></option><% } %>
-        </select>
-      </div>
-      <div class="search-field">
-        <label for="s-quartos">Dormitórios</label>
-        <select id="s-quartos" name="quartos">
-          <option value="">Qualquer</option>
-          <option value="1">1+</option><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option>
-        </select>
-      </div>
-      <div class="search-field">
-        <label for="s-max">Até (R$/mês)</label>
-        <input id="s-max" name="max" type="text" inputmode="numeric" placeholder="Ex.: 3.500" data-money>
-      </div>
-      <button class="btn btn-accent btn-lg" type="submit"><%- include('../partials/icons', { icon: 'search' }) %> Buscar</button>
-    </form>
+      <form class="search-box" action="/imoveis" method="get" data-search-panel="filters">
+        <div class="search-field">
+          <label for="s-tipo">Tipo</label>
+          <select id="s-tipo" name="tipo">
+            <option value="">Todos os tipos</option>
+            <% for (const t of types) { %><option value="<%= t.value %>"><%= t.label %></option><% } %>
+          </select>
+        </div>
+        <div class="search-field">
+          <label for="s-cidade">Cidade</label>
+          <select id="s-cidade" name="cidade">
+            <option value="">Todas as cidades</option>
+            <% for (const c of filters.cities) { %><option value="<%= c.city %>"><%= c.city %></option><% } %>
+          </select>
+        </div>
+        <div class="search-field">
+          <label for="s-quartos">Dormitórios</label>
+          <select id="s-quartos" name="quartos">
+            <option value="">Qualquer</option>
+            <option value="1">1+</option><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option>
+          </select>
+        </div>
+        <div class="search-field">
+          <label for="s-max">Até (R$/mês)</label>
+          <input id="s-max" name="max" type="text" inputmode="numeric" placeholder="Ex.: 3.500" data-money>
+        </div>
+        <button class="btn btn-accent btn-lg" type="submit"><%- include('../partials/icons', { icon: 'search' }) %> Buscar</button>
+      </form>
+      <form class="search-box search-box-code" action="/imoveis" method="get" data-search-panel="code" hidden>
+        <div class="search-field">
+          <label for="s-code">Código do imóvel</label>
+          <input id="s-code" name="busca" type="text" placeholder="Ex.: IM-0003" autocomplete="off">
+        </div>
+        <button class="btn btn-accent btn-lg" type="submit"><%- include('../partials/icons', { icon: 'search' }) %> Localizar</button>
+      </form>
+    </div>
 
-    <div class="hero-stats">
-      <div><strong><%= stats.available %></strong><span>imóveis disponíveis</span></div>
-      <div><strong><%= stats.cities %></strong><span>cidades atendidas</span></div>
-      <div><strong><%= stats.rented %></strong><span>imóveis já alugados</span></div>
+    <div class="hero-stats reveal" style="--d:4">
+      <div><strong data-count="<%= stats.available %>">0</strong><span>imóveis disponíveis</span></div>
+      <div><strong data-count="<%= stats.cities %>">0</strong><span>cidades atendidas</span></div>
+      <div><strong data-count="<%= stats.rented %>">0</strong><span>imóveis já alugados</span></div>
     </div>
   </div>
+  <a href="#destaques" class="hero-scroll" aria-label="Rolar para os destaques"><span></span></a>
 </section>
 
-<% if (featured.length) { %>
-<section class="section">
+<section class="section" id="destaques">
   <div class="container">
-    <div class="section-head">
+    <div class="section-head reveal">
       <div>
         <span class="section-eyebrow">Selecionados para você</span>
         <h2>Imóveis em destaque</h2>
       </div>
-      <a href="/imoveis" class="btn btn-outline">Ver todos <%- include('../partials/icons', { icon: 'arrow' }) %></a>
+      <div class="section-tools">
+        <% if (featured.length > 1) { %>
+        <div class="carousel-nav">
+          <button type="button" class="carousel-btn" data-carousel-prev="featuredCarousel" aria-label="Anterior"><%- include('../partials/icons', { icon: 'chevron' }) %></button>
+          <button type="button" class="carousel-btn" data-carousel-next="featuredCarousel" aria-label="Próximo"><%- include('../partials/icons', { icon: 'chevron' }) %></button>
+        </div>
+        <% } %>
+        <a href="/imoveis" class="btn btn-outline">Ver todos <%- include('../partials/icons', { icon: 'arrow' }) %></a>
+      </div>
     </div>
+    <% if (featured.length) { %>
+    <div class="carousel" id="featuredCarousel" data-carousel data-autoplay="5000">
+      <div class="carousel-track">
+        <% featured.forEach((p, i) => { %><div class="carousel-item reveal" style="--d:<%= i %>"><%- include('../partials/property-card', { p }) %></div><% }) %>
+      </div>
+      <div class="carousel-dots" data-carousel-dots></div>
+    </div>
+    <% } else { %>
     <div class="prop-grid">
-      <% for (const p of featured) { %><%- include('../partials/property-card', { p }) %><% } %>
+      <% latest.slice(0, 3).forEach((p, i) => { %><div class="reveal" style="--d:<%= i %>"><%- include('../partials/property-card', { p }) %></div><% }) %>
     </div>
+    <% } %>
   </div>
 </section>
-<% } %>
 
 <section class="section section-alt">
   <div class="container">
-    <div class="section-head center">
+    <div class="section-head center reveal">
       <span class="section-eyebrow">Explore por categoria</span>
       <h2>O que você procura?</h2>
     </div>
     <div class="type-grid">
       <% const typeIcons = { casa: 'home', apartamento: 'building', sobrado: 'home', kitnet: 'key', cobertura: 'building', comercial: 'tag', galpao: 'grid', terreno: 'area' }; %>
-      <% for (const t of types.filter(t => t.count > 0)) { %>
-      <a href="/imoveis?tipo=<%= t.value %>" class="type-card">
+      <% types.filter(t => t.count > 0).forEach((t, i) => { %>
+      <a href="/imoveis?tipo=<%= t.value %>" class="type-card reveal" style="--d:<%= i %>">
         <span class="type-icon"><%- include('../partials/icons', { icon: typeIcons[t.value] || 'home' }) %></span>
         <strong><%= t.label %></strong>
         <span><%= t.count %> <%= t.count === 1 ? 'imóvel' : 'imóveis' %></span>
       </a>
-      <% } %>
+      <% }) %>
     </div>
   </div>
 </section>
 
-<section class="section">
+<section class="section steps-section">
   <div class="container steps-wrap">
-    <div class="section-head center">
+    <div class="section-head center reveal">
       <span class="section-eyebrow">Simples e transparente</span>
       <h2>Como funciona o aluguel</h2>
     </div>
     <div class="steps-grid">
-      <div class="step-card"><span class="step-num">1</span><span class="step-icon"><%- include('../partials/icons', { icon: 'search' }) %></span><h3>Encontre</h3><p>Pesquise por tipo, cidade e faixa de preço e escolha os imóveis que mais combinam com você.</p></div>
-      <div class="step-card"><span class="step-num">2</span><span class="step-icon"><%- include('../partials/icons', { icon: 'chat' }) %></span><h3>Fale com o corretor</h3><p>Envie sua solicitação e tire dúvidas pelo chat exclusivo ou WhatsApp. Você recebe um protocolo para acompanhar tudo.</p></div>
-      <div class="step-card"><span class="step-num">3</span><span class="step-icon"><%- include('../partials/icons', { icon: 'calendar' }) %></span><h3>Visite</h3><p>Agende a visita no melhor horário para você e conheça o imóvel pessoalmente.</p></div>
-      <div class="step-card"><span class="step-num">4</span><span class="step-icon"><%- include('../partials/icons', { icon: 'key' }) %></span><h3>Assine e mude</h3><p>Análise de documentos ágil, contrato digital e as chaves na sua mão.</p></div>
+      <div class="step-card reveal" style="--d:0"><span class="step-num">1</span><span class="step-icon"><%- include('../partials/icons', { icon: 'search' }) %></span><h3>Encontre</h3><p>Pesquise por tipo, cidade e faixa de preço e escolha os imóveis que mais combinam com você.</p></div>
+      <div class="step-card reveal" style="--d:1"><span class="step-num">2</span><span class="step-icon"><%- include('../partials/icons', { icon: 'chat' }) %></span><h3>Fale com a corretora</h3><p>Envie sua solicitação e tire dúvidas pelo chat exclusivo ou WhatsApp. Você recebe um protocolo para acompanhar tudo.</p></div>
+      <div class="step-card reveal" style="--d:2"><span class="step-num">3</span><span class="step-icon"><%- include('../partials/icons', { icon: 'calendar' }) %></span><h3>Visite</h3><p>Agende a visita no melhor horário para você e conheça o imóvel pessoalmente.</p></div>
+      <div class="step-card reveal" style="--d:3"><span class="step-num">4</span><span class="step-icon"><%- include('../partials/icons', { icon: 'key' }) %></span><h3>Assine e mude</h3><p>Análise de documentos ágil, contrato digital e as chaves na sua mão.</p></div>
     </div>
   </div>
 </section>
@@ -99,7 +139,7 @@
 <% if (latest.length) { %>
 <section class="section section-alt">
   <div class="container">
-    <div class="section-head">
+    <div class="section-head reveal">
       <div>
         <span class="section-eyebrow">Novidades</span>
         <h2>Adicionados recentemente</h2>
@@ -107,17 +147,29 @@
       <a href="/imoveis?ordem=recentes" class="btn btn-outline">Ver todos <%- include('../partials/icons', { icon: 'arrow' }) %></a>
     </div>
     <div class="prop-grid">
-      <% for (const p of latest) { %><%- include('../partials/property-card', { p }) %><% } %>
+      <% latest.forEach((p, i) => { %><div class="reveal" style="--d:<%= i %>"><%- include('../partials/property-card', { p }) %></div><% }) %>
     </div>
   </div>
 </section>
 <% } %>
 
+<section class="section trust-section">
+  <div class="container">
+    <div class="trust-grid">
+      <div class="trust-item reveal" style="--d:0"><span class="trust-icon"><%- include('../partials/icons', { icon: 'shield' }) %></span><strong>Segurança jurídica</strong><span>Contratos claros e análise documental cuidadosa.</span></div>
+      <div class="trust-item reveal" style="--d:1"><span class="trust-icon"><%- include('../partials/icons', { icon: 'chat' }) %></span><strong>Atendimento humano</strong><span>Chat direto com a corretora e resposta rápida.</span></div>
+      <div class="trust-item reveal" style="--d:2"><span class="trust-icon"><%- include('../partials/icons', { icon: 'clock' }) %></span><strong>Agilidade</strong><span>Acompanhe cada etapa da sua solicitação em tempo real.</span></div>
+      <div class="trust-item reveal" style="--d:3"><span class="trust-icon"><%- include('../partials/icons', { icon: 'star' }) %></span><strong>Imóveis selecionados</strong><span>Somente imóveis vistoriados e prontos para morar.</span></div>
+    </div>
+  </div>
+</section>
+
 <section class="section">
-  <div class="container cta-banner">
+  <div class="container cta-banner reveal">
+    <div class="cta-orb" aria-hidden="true"></div>
     <div>
       <h2>Não encontrou o que procura?</h2>
-      <p>Conte para o nosso time o que você precisa e avisamos assim que surgir um imóvel com o seu perfil.</p>
+      <p>Conte para a Mariele o que você precisa e avisamos assim que surgir um imóvel com o seu perfil.</p>
     </div>
     <div class="cta-actions">
       <a href="/contato" class="btn btn-light btn-lg"><%- include('../partials/icons', { icon: 'mail' }) %> Enviar mensagem</a>

@@ -1,8 +1,8 @@
     </main>
   </div>
 </div>
-<script src="/static/js/site.js" defer></script>
-<script src="/static/js/admin.js" defer></script>
+<script src="/static/js/site.js?v=<%= v %>" defer></script>
+<script src="/static/js/admin.js?v=<%= v %>" defer></script>
 <% if (typeof extraScripts !== 'undefined') { %><%- extraScripts %><% } %>
 </body>
 </html>

@@ -5,17 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= title %> · Painel · <%= settings.site_name %></title>
   <meta name="robots" content="noindex, nofollow">
-  <link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/static/img/favicon.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/css/site.css">
-  <link rel="stylesheet" href="/static/css/admin.css">
+  <link rel="stylesheet" href="/static/css/site.css?v=<%= v %>">
+  <link rel="stylesheet" href="/static/css/admin.css?v=<%= v %>">
 </head>
 <body class="admin-body">
 <% const p = currentPath.replace(/^\/admin/, '') || '/'; %>
 <div class="admin-shell">
   <aside class="admin-sidebar" id="adminSidebar">
-    <a href="/admin" class="brand brand-light"><span class="brand-mark"><%- include('../../partials/icons', { icon: 'home' }) %></span><span class="brand-text"><%= settings.site_name %></span></a>
+    <a href="/admin" class="brand brand-light" aria-label="<%= settings.site_name %>"><img src="/static/img/logo-light.png" alt="<%= settings.site_name %>" class="brand-logo sidebar-logo" width="570" height="420"></a>
     <nav class="admin-nav">
       <a href="/admin" class="<%= p === '/' ? 'active' : '' %>"><%- include('../../partials/icons', { icon: 'grid' }) %> Painel</a>
       <a href="/admin/imoveis" class="<%= p.startsWith('/imoveis') ? 'active' : '' %>"><%- include('../../partials/icons', { icon: 'building' }) %> Imóveis</a>

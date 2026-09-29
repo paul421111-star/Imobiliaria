@@ -102,7 +102,7 @@
         </div>
       <% } else { %>
         <div class="prop-grid">
-          <% for (const p of props) { %><%- include('../partials/property-card', { p }) %><% } %>
+          <% props.forEach((p, i) => { %><div class="reveal" style="--d:<%= i % 3 %>"><%- include('../partials/property-card', { p }) %></div><% }) %>
         </div>
         <% if (pages > 1) { %>
         <nav class="pagination" aria-label="Paginação">

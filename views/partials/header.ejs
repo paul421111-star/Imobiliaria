@@ -1,8 +1,25 @@
+<% const socialLinks = [['instagram','Instagram'],['facebook','Facebook'],['tiktok','TikTok'],['youtube','YouTube'],['linkedin','LinkedIn']].filter(([k]) => settings[k]); %>
+<div class="topbar">
+  <div class="container topbar-inner">
+    <div class="topbar-contacts">
+      <% if (settings.phone) { %><a href="tel:<%= settings.phone.replace(/\D/g,'') %>"><%- include('icons', { icon: 'phone' }) %> <%= settings.phone %></a><% } %>
+      <% if (settings.whatsapp) { %><a href="<%= utils.whatsappLink(settings.whatsapp, settings.whatsapp_message) %>" target="_blank" rel="noopener"><%- include('icons', { icon: 'whatsapp' }) %> <%= utils.formatPhone(settings.whatsapp.replace(/^55/, '')) %></a><% } %>
+      <% if (settings.email) { %><a href="mailto:<%= settings.email %>" class="topbar-email"><%- include('icons', { icon: 'mail' }) %> <%= settings.email %></a><% } %>
+    </div>
+    <div class="topbar-right">
+      <% if (settings.business_hours) { %><span class="topbar-hours"><%- include('icons', { icon: 'clock' }) %> <%= settings.business_hours %></span><% } %>
+      <% if (socialLinks.length) { %>
+      <div class="topbar-social">
+        <% for (const [key, label] of socialLinks) { %><a href="<%= settings[key] %>" target="_blank" rel="noopener" aria-label="<%= label %>" title="<%= label %>"><%- include('icons', { icon: key }) %></a><% } %>
+      </div>
+      <% } %>
+    </div>
+  </div>
+</div>
 <header class="site-header <%= typeof headerTransparent !== 'undefined' && headerTransparent ? 'is-transparent' : '' %>" id="siteHeader">
   <div class="container header-inner">
     <a href="/" class="brand" aria-label="<%= settings.site_name %>">
-      <span class="brand-mark"><%- include('icons', { icon: 'home' }) %></span>
-      <span class="brand-text"><%= settings.site_name %></span>
+      <img src="/static/img/logo.png" alt="<%= settings.site_name %>" class="brand-logo" width="570" height="420">
     </a>
     <nav class="main-nav" id="mainNav">
       <a href="/" class="<%= currentPath === '/' ? 'active' : '' %>">Início</a>
@@ -12,6 +29,9 @@
       <a href="/acompanhar" class="<%= currentPath.startsWith('/acompanhar') ? 'active' : '' %>">
         <%- include('icons', { icon: 'file' }) %> Acompanhar solicitação
       </a>
+      <div class="main-nav-social">
+        <% for (const [key, label] of socialLinks) { %><a href="<%= settings[key] %>" target="_blank" rel="noopener" aria-label="<%= label %>"><%- include('icons', { icon: key }) %></a><% } %>
+      </div>
     </nav>
     <div class="header-actions">
       <a class="btn btn-whatsapp btn-sm" href="<%= utils.whatsappLink(settings.whatsapp, settings.whatsapp_message) %>" target="_blank" rel="noopener">

@@ -1,17 +1,17 @@
 <footer class="site-footer">
+  <div class="footer-glow" aria-hidden="true"></div>
   <div class="container footer-grid">
     <div class="footer-brand">
-      <a href="/" class="brand brand-light">
-        <span class="brand-mark"><%- include('icons', { icon: 'home' }) %></span>
-        <span class="brand-text"><%= settings.site_name %></span>
+      <a href="/" class="brand brand-light" aria-label="<%= settings.site_name %>">
+        <img src="/static/img/logo-light.png" alt="<%= settings.site_name %>" class="brand-logo brand-logo-lg" width="570" height="420">
       </a>
       <p><%= settings.about %></p>
       <div class="social-links">
         <% const socials = [['instagram','Instagram'],['facebook','Facebook'],['tiktok','TikTok'],['youtube','YouTube'],['linkedin','LinkedIn']]; %>
         <% for (const [key, label] of socials) { if (settings[key]) { %>
-          <a href="<%= settings[key] %>" target="_blank" rel="noopener" aria-label="<%= label %>" title="<%= label %>"><%- include('icons', { icon: key }) %></a>
+          <a href="<%= settings[key] %>" target="_blank" rel="noopener" aria-label="<%= label %>" title="<%= label %>" class="social-<%= key %>"><%- include('icons', { icon: key }) %></a>
         <% } } %>
-        <a href="<%= utils.whatsappLink(settings.whatsapp, settings.whatsapp_message) %>" target="_blank" rel="noopener" aria-label="WhatsApp" title="WhatsApp"><%- include('icons', { icon: 'whatsapp' }) %></a>
+        <a href="<%= utils.whatsappLink(settings.whatsapp, settings.whatsapp_message) %>" target="_blank" rel="noopener" aria-label="WhatsApp" title="WhatsApp" class="social-whatsapp"><%- include('icons', { icon: 'whatsapp' }) %></a>
       </div>
     </div>
     <div>
@@ -49,12 +49,34 @@
   </div>
 </footer>
 
-<a class="whatsapp-float" href="<%= utils.whatsappLink(settings.whatsapp, settings.whatsapp_message) %>" target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
-  <%- include('icons', { icon: 'whatsapp' }) %>
-  <span>Fale conosco</span>
-</a>
+<button class="back-top" id="backTop" aria-label="Voltar ao topo" type="button"><%- include('icons', { icon: 'arrow' }) %></button>
 
-<script src="/static/js/site.js" defer></script>
+<div class="wa-widget" id="waWidget">
+  <div class="wa-popup" id="waPopup" hidden>
+    <div class="wa-popup-head">
+      <span class="wa-avatar"><img src="/static/img/logo-mark.png" alt=""><i class="wa-online"></i></span>
+      <div><strong><%= settings.site_name %></strong><span>Normalmente responde em minutos</span></div>
+      <button type="button" class="wa-close" id="waClose" aria-label="Fechar"><%- include('icons', { icon: 'close' }) %></button>
+    </div>
+    <div class="wa-popup-body">
+      <div class="wa-bubble">Olá! 👋 Que bom ter você por aqui.<br>Como posso ajudar com o seu próximo imóvel?</div>
+      <textarea id="waMessage" rows="2" placeholder="Escreva sua mensagem..."><%= typeof waPrefill !== 'undefined' && waPrefill ? waPrefill : settings.whatsapp_message %></textarea>
+      <a href="<%= utils.whatsappLink(settings.whatsapp, settings.whatsapp_message) %>" id="waSend" class="btn btn-whatsapp btn-block" target="_blank" rel="noopener" data-phone="<%= settings.whatsapp.replace(/\D/g,'') %>"><%- include('icons', { icon: 'whatsapp' }) %> Iniciar conversa</a>
+    </div>
+  </div>
+  <button type="button" class="whatsapp-float" id="waToggle" aria-label="Falar no WhatsApp" aria-expanded="false">
+    <span class="wa-pulse" aria-hidden="true"></span>
+    <%- include('icons', { icon: 'whatsapp' }) %>
+    <span class="wa-label">Fale conosco</span>
+  </button>
+</div>
+
+<div class="cookie-bar" id="cookieBar" hidden role="dialog" aria-live="polite">
+  <p><%- include('icons', { icon: 'shield' }) %> Usamos cookies essenciais para o funcionamento do site e para lembrar suas solicitações. Ao continuar navegando, você concorda com isso.</p>
+  <button type="button" class="btn btn-accent btn-sm" id="cookieOk">Entendi</button>
+</div>
+
+<script src="/static/js/site.js?v=<%= v %>" defer></script>
 <% if (typeof extraScripts !== 'undefined') { %><%- extraScripts %><% } %>
 </body>
 </html>
